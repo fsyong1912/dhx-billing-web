@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Account & Billing DHExpress v3.7</title>
+<title>DHExpress v3.8</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -221,7 +221,7 @@
 <body>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.7</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.8</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic">▦</span> Dashboard</a>
       <div class="grp">Sales</div>
@@ -232,6 +232,7 @@
       <div class="grp">Purchase</div>
       <a data-view="purchase"><span class="ic">💳</span> Expenses</a>
       <a data-view="bills"><span class="ic">🧾</span> Supplier Bills</a>
+      <a data-view="billpayments"><span class="ic">💸</span> Supplier Payments</a>
       <div class="grp">Reports</div>
       <a data-view="reports"><span class="ic">📊</span> Reports</a>
       <div class="grp">Setup</div>
@@ -290,7 +291,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;
-const APP_VERSION='3.7';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.8';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 let data={
   company:{name:'DHEXPRESS LOGISTICS SDN BHD',reg:'1683906-D',phone:'',email:'',addr:'',sstreg:'no',sstno:'',bank:'',terms:30,nextInv:1,nextQuo:1,nextCn:1,nextRcp:1,nextBill:1,nextPV:1},
@@ -716,6 +717,19 @@ function filteredPayments(){let list=allReceipts();const f=pFilter;
   if(f.cust)list=list.filter(r=>r.cust===f.cust);
   const k=pSort.key,dir=pSort.dir;list.sort((a,b)=>{let av,bv;if(k==='amount'){av=a.amount||0;bv=b.amount||0;}else if(k==='cust'){av=(a.cust||'').toLowerCase();bv=(b.cust||'').toLowerCase();}else if(k==='no'){av=a.no||'';bv=b.no||'';}else{av=a.date||'';bv=b.date||'';}return av<bv?-dir:av>bv?dir:0;});
   return list;}
+let spFilter={from:'',to:'',search:'',sup:''},spSort={key:'date',dir:-1};
+function spsStore(k,v){spFilter[k]=v;}
+function spsApply(k,v){spFilter[k]=v;render();}
+function spsSearch(){render();}
+function spsReset(){spFilter={from:'',to:'',search:'',sup:''};spSort={key:'date',dir:-1};render();}
+function spSortBy(k){if(spSort.key===k)spSort.dir*=-1;else{spSort.key=k;spSort.dir=1;}render();}
+function allBillPayments(){const out=[];data.bills.forEach(b=>{(b.payments||[]).forEach(p=>out.push({no:p.no,date:p.date,amount:p.amount,method:p.method||'',billNo:b.no,supplier:b.supplier}));});return out;}
+function filteredBillPayments(){let list=allBillPayments();const f=spFilter;
+  if(f.from)list=list.filter(r=>r.date>=f.from);if(f.to)list=list.filter(r=>r.date<=f.to);
+  if(f.search){const s=f.search.toLowerCase();list=list.filter(r=>(r.no||'').toLowerCase().includes(s)||(r.supplier||'').toLowerCase().includes(s)||(r.billNo||'').toLowerCase().includes(s));}
+  if(f.sup)list=list.filter(r=>r.supplier===f.sup);
+  const k=spSort.key,dir=spSort.dir;list.sort((a,b)=>{let av,bv;if(k==='amount'){av=a.amount||0;bv=b.amount||0;}else if(k==='sup'){av=(a.supplier||'').toLowerCase();bv=(b.supplier||'').toLowerCase();}else if(k==='no'){av=a.no||'';bv=b.no||'';}else{av=a.date||'';bv=b.date||'';}return av<bv?-dir:av>bv?dir:0;});
+  return list;}
 
 /* ---------- SETTINGS ---------- */
 function saveSettings(){const c=data.company;
@@ -1020,6 +1034,26 @@ function render(){
         ${list.map(r=>`<tr><td>${esc(r.no)}</td><td>${r.date}</td><td>${esc(r.cust)}</td><td>${esc(r.invNo)}</td><td>${esc(r.method||'-')}</td><td class="amt">${RM(r.amount)}</td>
           <td style="text-align:right"><button class="mini g" onclick="printReceipt('${r.invNo}','${r.no}')">Print</button></td></tr>`).join('')}
         </tbody></table>${list.length?'':'<div class="empty">📭<br>No payments received yet. Use “Receive” on an invoice.</div>'}</div>`;
+    return;}
+
+  if(curView==='billpayments'){
+    const f=spFilter;const list=filteredBillPayments();
+    const sups=[...new Set(allBillPayments().map(r=>r.supplier).filter(Boolean))].sort();
+    const arrow=k=>spSort.key===k?`<span class="ar">${spSort.dir>0?'▲':'▼'}</span>`:'<span class="ar">↕</span>';
+    const total=list.reduce((s,r)=>s+(r.amount||0),0);
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Purchase / </span>Supplier Payments</h1><div class="desc">Payments made to suppliers (payment vouchers).</div></div></div>${warnHtml}
+      <div class="filterbar"><div class="filtergrid" style="grid-template-columns:1.6fr 1fr 1fr">
+        <div class="fld"><label>Date Range</label><div class="daterange"><input type="date" value="${f.from}" onchange="spsApply('from',this.value)"><span>→</span><input type="date" value="${f.to}" onchange="spsApply('to',this.value)"></div></div>
+        <div class="fld"><label>Search</label><input value="${esc(f.search)}" oninput="spsStore('search',this.value)" onkeydown="if(event.key==='Enter')spsSearch()" placeholder="Voucher, supplier or bill"></div>
+        <div class="fld"><label>Supplier</label><select onchange="spsApply('sup',this.value)"><option value="">All</option>${sups.map(c=>`<option value="${esc(c)}" ${f.sup===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
+      </div><div class="filteractions"><button class="iconbtn pri" onclick="spsSearch()">🔍</button><button class="iconbtn" onclick="spsReset()">↺</button><span style="margin-left:auto;font-size:14px;color:var(--muted)">Total paid: <b>${RM(total)}</b></span></div></div>
+      <div class="panel"><table><thead><tr>
+        <th class="sortable" onclick="spSortBy('no')">Voucher No. ${arrow('no')}</th><th class="sortable" onclick="spSortBy('date')">Date ${arrow('date')}</th>
+        <th class="sortable" onclick="spSortBy('sup')">Supplier ${arrow('sup')}</th><th>Against Bill</th><th>Method</th>
+        <th class="sortable amt" onclick="spSortBy('amount')">Amount ${arrow('amount')}</th><th style="text-align:right">Action</th></tr></thead><tbody>
+        ${list.map(r=>`<tr><td>${esc(r.no)}</td><td>${r.date}</td><td>${esc(r.supplier)}</td><td>${esc(r.billNo)}</td><td>${esc(r.method||'-')}</td><td class="amt">${RM(r.amount)}</td>
+          <td style="text-align:right"><button class="mini g" onclick="printPayVoucher('${r.billNo}','${r.no}')">Print</button></td></tr>`).join('')}
+        </tbody></table>${list.length?'':'<div class="empty">📭<br>No supplier payments yet. Use “Pay” on a supplier bill.</div>'}</div>`;
     return;}
 
   if(curView==='billform'){
