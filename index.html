@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.13</title>
+<title>DHExpress v3.17</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -72,6 +72,16 @@
   .k .kt{display:inline-flex;align-items:center;min-width:0}
   .grid2{display:grid;grid-template-columns:1.7fr 1fr;gap:16px;margin-top:16px}
   @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+  #loginGate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:grid;place-items:center}
+  .lg-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:34px 30px;width:300px;text-align:center;box-shadow:0 10px 40px rgba(15,23,42,.12)}
+  .lg-logo{width:48px;height:48px;border-radius:12px;background:var(--green);color:#fff;font-weight:800;font-size:18px;display:grid;place-items:center;margin:0 auto 14px}
+  .lg-title{font-size:20px;font-weight:700;color:var(--slate)}
+  .lg-sub{font-size:13px;color:var(--muted);margin:4px 0 18px}
+  .lg-card input{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid var(--line);border-radius:9px;font-size:16px;text-align:center;letter-spacing:2px}
+  .lg-card input:focus{outline:none;border-color:var(--green)}
+  .lg-btn{width:100%;margin-top:14px;padding:12px;border:none;border-radius:9px;background:var(--green);color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+  .lg-btn:hover{background:var(--green-dark)}
+  .lg-err{color:var(--red);font-size:12px;min-height:16px;margin-top:8px}
   .split{display:flex;justify-content:space-between;margin-top:14px}
   .split .lab{color:var(--muted);font-size:12px;display:block;margin-top:2px}
   .split b{font-size:15px}
@@ -219,9 +229,19 @@
 </style>
 </head>
 <body>
+<div id="loginGate" style="display:none">
+  <div class="lg-card">
+    <div class="lg-logo">DH</div>
+    <div class="lg-title">DHExpress</div>
+    <div class="lg-sub">Enter passcode to continue</div>
+    <input id="lgPass" type="password" inputmode="numeric" placeholder="Passcode" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="off">
+    <div id="lgErr" class="lg-err"></div>
+    <button class="lg-btn" onclick="doLogin()">Unlock</button>
+  </div>
+</div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.13</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.17</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic">▦</span> Dashboard</a>
       <div class="grp">Sales</div>
@@ -234,6 +254,11 @@
       <a data-view="purchase"><span class="ic">💳</span> Expenses</a>
       <a data-view="bills"><span class="ic">🧾</span> Supplier Bills</a>
       <a data-view="billpayments"><span class="ic">💸</span> Supplier Payments</a>
+      <div class="grp">Payroll</div>
+      <a data-view="drivers"><span class="ic">🧑‍✈️</span> Drivers</a>
+      <a data-view="payroutes"><span class="ic">🛣️</span> Route Rates</a>
+      <a data-view="trips"><span class="ic">🚏</span> Trips</a>
+      <a data-view="payrun"><span class="ic">💵</span> Pay Run</a>
       <div class="grp">Reports</div>
       <a data-view="reports"><span class="ic">📊</span> Reports</a>
       <div class="grp">Setup</div>
@@ -244,6 +269,7 @@
   <div class="main">
     <div class="topbar">
       <div class="co"><span id="coName">DHEXPRESS LOGISTICS SDN BHD</span><span class="badge">1683906-D</span></div>
+      <button onclick="lockApp()" title="Lock" style="background:transparent;border:1px solid var(--line);color:var(--muted);font-size:13px;font-weight:600;padding:7px 13px;border-radius:7px;cursor:pointer">🔒 Lock</button>
     </div>
     <div class="content" id="content"></div>
   </div>
@@ -292,11 +318,19 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;
-const APP_VERSION='3.13';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.17';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
+function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
+function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
+function doLogin(){const el=document.getElementById('lgPass');const v=el?el.value:'';const e=document.getElementById('lgErr');if(e)e.textContent='';
+  fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:v})})
+    .then(r=>{if(r.ok){hideGate();load();}else{if(e)e.textContent='Wrong passcode. Try again.';if(el){el.value='';el.focus();}}})
+    .catch(()=>{if(e)e.textContent='Network error. Try again.';});}
+function lockApp(){fetch('/api/logout',{method:'POST'}).finally(()=>location.reload());}
+function bootAuth(){fetch('/api/me').then(r=>r.json()).then(j=>{if(j&&j.authed){load();}else{showGate();}}).catch(()=>showGate());}
 let data={
-  company:{name:'DHEXPRESS LOGISTICS SDN BHD',reg:'1683906-D',phone:'',email:'',addr:'',sstreg:'no',sstno:'',bank:'',terms:30,nextInv:1,nextQuo:1,nextCn:1,nextRcp:1,nextBill:1,nextPV:1,nextDO:1},
-  quotations:[],invoices:[],creditNotes:[],expenses:[],contacts:[],bills:[],deliveryOrders:[]
+  company:{name:'DHEXPRESS LOGISTICS SDN BHD',reg:'1683906-D',phone:'',email:'',addr:'',sstreg:'no',sstno:'',bank:'',terms:30,nextInv:1,nextQuo:1,nextCn:1,nextRcp:1,nextBill:1,nextPV:1,nextDO:1,nextPay:1},
+  quotations:[],invoices:[],creditNotes:[],expenses:[],contacts:[],bills:[],deliveryOrders:[],drivers:[],payRoutes:[],trips:[],payslips:[]
 };
 let curType='invoice',curView='dash',lineRows=[],dashPeriod='30',editingExpId=null;
 const RM=n=>'RM '+(Number(n)||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -339,8 +373,8 @@ function donutChart(entries){const total=entries.reduce((s,e)=>s+e.value,0)||1,r
   const segs=entries.map(e=>{const frac=e.value/total,seg=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${e.color}" stroke-width="15" stroke-dasharray="${(frac*C).toFixed(2)} ${(C-frac*C).toFixed(2)}" stroke-dashoffset="${(-off*C).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=frac;return seg;}).join('');
   return `<svg viewBox="0 0 104 104" style="width:104px;height:104px;flex:none">${segs}</svg>`;}
 
-async function load(){try{const r=await fetch('/api/state');if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
-async function save(){mem=data;try{await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch(e){}render();}
+async function load(){let un=false;try{const r=await fetch('/api/state');if(r.status===401){un=true;}else if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(un){showGate();return;}if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(!data.drivers)data.drivers=[];if(!data.payRoutes)data.payRoutes=[];if(!data.trips)data.trips=[];if(!data.payslips)data.payslips=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;if(data.company.nextPay==null)data.company.nextPay=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
+async function save(){mem=data;try{const r=await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(r&&r.status===401){showGate();}}catch(e){}render();}
 
 /* nav */
 document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('a[data-view]');if(!a)return;
@@ -786,8 +820,8 @@ function exportMonthlyCSV(){const yr=rFilter.year,net=rFilter.net;const custs=mo
   const tot=Array(12).fill(0);Object.values(custs).forEach(arr=>arr.forEach((v,m)=>tot[m]+=v));rows.push(['Total',...tot.map(v=>v.toFixed(2)),tot.reduce((a,b)=>a+b,0).toFixed(2)]);
   downloadCSV('MonthlySales_'+yr+(net?'_net':'_gross')+'.csv',rows);}
 function exportPLCSV(){const from=rFilter.plFrom,to=rFilter.plTo;let s=0,c=0,e=0;
-  activeInvGlobal().forEach(i=>{if(i.date>=from&&i.date<=to)s+=i.total;});data.creditNotes.forEach(x=>{if(x.date>=from&&x.date<=to)c+=x.total;});data.expenses.forEach(x=>{if(x.date>=from&&x.date<=to)e+=x.amount;});data.bills.forEach(b=>{if(b.status!=='void'&&b.date>=from&&b.date<=to)e+=(b.total||0);});
-  const rows=[['Profit & Loss',from+' to '+to],['Gross sales (invoiced)',s.toFixed(2)],['Less: credit notes',(-c).toFixed(2)],['Net sales',(s-c).toFixed(2)],['Less: expenses & supplier bills',(-e).toFixed(2)],['Net profit/(loss)',(s-c-e).toFixed(2)]];
+  activeInvGlobal().forEach(i=>{if(i.date>=from&&i.date<=to)s+=i.total;});data.creditNotes.forEach(x=>{if(x.date>=from&&x.date<=to)c+=x.total;});data.expenses.forEach(x=>{if(x.date>=from&&x.date<=to)e+=x.amount;});data.bills.forEach(b=>{if(b.status!=='void'&&b.date>=from&&b.date<=to)e+=(b.total||0);});data.payslips.forEach(p=>{if(p.date>=from&&p.date<=to)e+=(p.serviceFee||0)+(p.allowance||0)+(p.employerStat||0);});
+  const rows=[['Profit & Loss',from+' to '+to],['Gross sales (invoiced)',s.toFixed(2)],['Less: credit notes',(-c).toFixed(2)],['Net sales',(s-c).toFixed(2)],['Less: expenses, bills & payroll',(-e).toFixed(2)],['Net profit/(loss)',(s-c-e).toFixed(2)]];
   downloadCSV('ProfitLoss_'+from+'_'+to+'.csv',rows);}
 let pFilter={from:'',to:'',search:'',cust:''},pSort={key:'date',dir:-1};
 function psStore(k,v){pFilter[k]=v;}
@@ -844,6 +878,47 @@ function saveSettings(){const c=data.company;
 function summaryBox(cls,label,entries,amount){return `<div class="sumbox ${cls}"><div class="t"><span>${label}</span><span class="e">${entries} entr${entries===1?'y':'ies'}</span></div><div class="a">${RM(amount)}</div></div>`;}
 function listActions(html){return `<td style="text-align:right;white-space:nowrap">${html}</td>`;}
 
+/* ===== Payroll (driver trip service fee) ===== */
+function newDriver(){const n=prompt('Driver name:');if(n&&n.trim()){data.drivers.push({id:'D'+Date.now(),name:n.trim(),active:true});save();}}
+function editDriver(id){const d=data.drivers.find(x=>x.id===id);if(!d)return;const n=prompt('Driver name:',d.name);if(n&&n.trim()){d.name=n.trim();save();}}
+function toggleDriver(id){const d=data.drivers.find(x=>x.id===id);if(d){d.active=(d.active===false);save();}}
+function delDriver(id){if(!confirm('Delete this driver?'))return;data.drivers=data.drivers.filter(x=>x.id!==id);save();}
+function newRoute(){const n=prompt('Route name (e.g. Miri -> KK):');if(!n||!n.trim())return;const r=prompt('Fee per trip (RM):','0');data.payRoutes.push({id:'R'+Date.now(),name:n.trim(),rate:parseFloat(r)||0});save();}
+function editRoute(id){const r=data.payRoutes.find(x=>x.id===id);if(!r)return;const nm=prompt('Route name:',r.name);if(nm===null)return;const rt=prompt('Fee per trip (RM):',r.rate);if(rt===null)return;r.name=nm.trim()||r.name;r.rate=parseFloat(rt)||0;save();}
+function delRoute(id){if(!confirm('Delete this route rate?'))return;data.payRoutes=data.payRoutes.filter(x=>x.id!==id);save();}
+let tripForm={date:todayISO(),driver:'',route:'',truck:'',note:''};
+let tripFilter={from:'',to:'',driver:''};
+function tSet(k,v){tripForm[k]=v;}
+function addTrip(){if(!tripForm.driver){alert('Pick a driver.');return;}if(!tripForm.route){alert('Pick a route.');return;}
+  const r=data.payRoutes.find(x=>x.name===tripForm.route);const rate=r?r.rate:0;
+  data.trips.push({id:'T'+Date.now(),date:tripForm.date,driver:tripForm.driver,route:tripForm.route,rate:rate,truck:tripForm.truck,note:tripForm.note});
+  tripForm={date:tripForm.date,driver:tripForm.driver,route:'',truck:'',note:''};save();}
+function delTrip(id){if(!confirm('Delete this trip?'))return;data.trips=data.trips.filter(x=>x.id!==id);save();}
+function tfSet(k,v){tripFilter[k]=v;render();}
+function filteredTrips(){let l=data.trips.slice();const f=tripFilter;if(f.from)l=l.filter(t=>t.date>=f.from);if(f.to)l=l.filter(t=>t.date<=f.to);if(f.driver)l=l.filter(t=>t.driver===f.driver);return l.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);}
+let payRun={driver:'',period:new Date().toISOString().slice(0,7),allowance:0,advance:0,deduction:0,employerStat:0,note:''};
+function prSet(k,v){payRun[k]=(k==='driver'||k==='period'||k==='note')?v:(parseFloat(v)||0);render();}
+function prTrips(){if(!payRun.driver||!payRun.period)return [];return data.trips.filter(t=>t.driver===payRun.driver&&(t.date||'').slice(0,7)===payRun.period);}
+function prServiceFee(){return prTrips().reduce((s,t)=>s+(t.rate||0),0);}
+function prNet(){return prServiceFee()+(payRun.allowance||0)-(payRun.advance||0)-(payRun.deduction||0);}
+function generatePayslip(){if(!payRun.driver){alert('Pick a driver.');return;}const trips=prTrips();if(!trips.length&&!confirm('No trips found for this period. Continue anyway?'))return;
+  const fee=prServiceFee();const net=prNet();
+  const rec={no:'PAY.DHE.'+YR+'.'+pad3(data.company.nextPay),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
+  data.payslips.push(rec);data.company.nextPay++;save();printPayslip(rec.no);payRun={driver:'',period:payRun.period,allowance:0,advance:0,deduction:0,employerStat:0,note:''};}
+function delPayslip(no){if(!confirm('Delete payslip '+no+'?'))return;data.payslips=data.payslips.filter(x=>x.no!==no);save();}
+function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
+  doPrint(`<div class="doc">${coHeader()}<div class="doctype"><div class="t">DRIVER PAYMENT VOUCHER</div><div class="m">No: <b>${esc(p.no)}</b><br>Date: ${p.date}<br>Period: ${esc(p.period)}</div></div></div>
+  <div class="billto"><div><div class="lab">Pay To (Driver)</div><div class="v">${esc(p.driver)}</div></div><div><div class="lab">Trips</div><div class="v">${p.tripsCount} trip(s)</div></div></div>
+  <table class="items"><thead><tr><th>Description</th><th style="text-align:right">Amount (RM)</th></tr></thead><tbody>
+    <tr><td>Service Fee (${p.tripsCount} trips)</td><td style="text-align:right">${p.serviceFee.toFixed(2)}</td></tr>
+    ${p.allowance?`<tr><td>Allowance</td><td style="text-align:right">${p.allowance.toFixed(2)}</td></tr>`:''}
+    ${p.advance?`<tr><td>Less: Advance</td><td style="text-align:right">(${p.advance.toFixed(2)})</td></tr>`:''}
+    ${p.deduction?`<tr><td>Less: Statutory EPF/SOCSO/EIS (per HR.my)</td><td style="text-align:right">(${p.deduction.toFixed(2)})</td></tr>`:''}
+  </tbody></table>
+  <div class="totals"><div class="tr grand"><span>Net Pay</span><span>${RM(p.net)}</span></div></div>
+  ${p.employerStat?`<div class="terms">Employer statutory (EPF/SOCSO/EIS) borne by the company, not deducted from the driver: ${RM(p.employerStat)}.</div>`:''}
+  ${p.note?`<div class="terms"><b>Note:</b> ${esc(p.note)}</div>`:''}
+  <div class="sign"><div class="box">Received by (Driver)<br>Name / Date</div><div class="box">Approved by<br>For ${esc(data.company.name)}</div></div><div class="foot">Computer-generated payment voucher. Statutory figures per HR.my.</div></div>`);}
 function render(){
   const c=data.company;document.getElementById('coName').textContent=c.name;const el=document.getElementById('content');
   const missing=[];if(!c.addr)missing.push('address');if(!c.bank)missing.push('bank details');if(c.sstreg==='yes'&&!c.sstno)missing.push('SST no.');
@@ -865,7 +940,8 @@ function render(){
     const qP=quo365.filter(q=>q.status==='pending'),qL=quo365.filter(q=>q.status==='lost'),qW=quo365.filter(q=>q.status==='won');
     const totDeal=sum(quo365),qbTot=sum(qP)+sum(qL)+sum(qW)||1;
     const billsWin=data.bills.filter(b=>b.status!=='void'&&inWin(b.date,pf,pt));const billsCost=sum(billsWin);
-    const income=sum(salesInv);const expCost=sum(exp.filter(e=>inWin(e.date,pf,pt)),x=>x.amount);const costTot=expCost+billsCost;const net=income-costTot;
+    const payWin=data.payslips.filter(p=>inWin(p.date,pf,pt));const payCost=payWin.reduce((s,p)=>s+(p.serviceFee||0)+(p.allowance||0)+(p.employerStat||0),0);
+    const income=sum(salesInv);const expCost=sum(exp.filter(e=>inWin(e.date,pf,pt)),x=>x.amount);const costTot=expCost+billsCost+payCost;const net=income-costTot;
     const bill365=data.bills.filter(b=>b.status!=='void'&&new Date(b.date)>=y365);
     const bU=bill365.filter(b=>billStat(b)==='unpaid'),bP=bill365.filter(b=>billStat(b)==='partial'),bF=bill365.filter(b=>billStat(b)==='paid');
     const apU=sum(bU),apP=sum(bP,billOut),apF=sum(bF),bbTot=apU+apP+apF||1;
@@ -874,11 +950,12 @@ function render(){
     const cfLabels=[],cfInc=[],cfExp=[];
     for(let ci=11;ci>=0;ci--){const d=new Date(today.getFullYear(),today.getMonth()-ci,1);cfLabels.push(MONTHS[d.getMonth()][0]);
       const mi=sum(activeInv.filter(x=>{const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}));
-      const me=sum(exp.filter(x=>{const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}),x=>x.amount)+sum(data.bills.filter(x=>{if(x.status==='void')return false;const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}));
+      const me=sum(exp.filter(x=>{const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}),x=>x.amount)+sum(data.bills.filter(x=>{if(x.status==='void')return false;const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}))+data.payslips.filter(x=>{const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}).reduce((s,p)=>s+(p.serviceFee||0)+(p.allowance||0)+(p.employerStat||0),0);
       cfInc.push(mi);cfExp.push(me);}
     const catMap={};
     exp.filter(e=>new Date(e.date)>=y365).forEach(e=>{const k=e.cat||'Others';catMap[k]=(catMap[k]||0)+e.amount;});
     data.bills.filter(b=>b.status!=='void'&&new Date(b.date)>=y365).forEach(b=>{const k=b.category||'Others';catMap[k]=(catMap[k]||0)+(b.total||0);});
+    data.payslips.filter(p=>new Date(p.date)>=y365).forEach(p=>{catMap['Driver Payroll']=(catMap['Driver Payroll']||0)+(p.serviceFee||0)+(p.allowance||0)+(p.employerStat||0);});
     const CATCOLORS=['#3644DB','#7C3AED','#2563EB','#0F8A54','#B7791F','#DC2626','#0EA5E9','#94A3B8','#F59E0B'];
     const catEntries=Object.entries(catMap).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).map(([label,value],i)=>({label,value,color:CATCOLORS[i%CATCOLORS.length]}));
     el.innerHTML=`<div class="page-head"><h1>Dashboard</h1></div>${warnHtml}
@@ -896,7 +973,7 @@ function render(){
           <div class="split"><div><b>${RM(sum(qW))}</b><span class="lab">Success</span></div><div style="text-align:right"><b>${RM(sum(qL))}</b><span class="lab">Closed</span></div></div></div>
         <div class="card dcard"><div class="k"><span class="kt">${kic('pnl','green')}PROFIT AND LOSS</span>${psel()}</div><div class="big blue" style="${net<0?'color:var(--red)':''}">${RM(net)}</div><div class="note">Net income for the period</div>
           <div style="margin-top:6px"><div class="row2" style="margin-top:8px"><span class="lab">Income</span><b>${RM(income)}</b></div><div class="row2"><span class="lab">Expenses + Bills</span><b>${RM(costTot)}</b></div></div></div>
-        <div class="card dcard"><div class="k"><span class="kt">${kic('cost','amber')}COST AND EXPENSES</span>${psel()}</div><div class="big blue">${RM(costTot)}</div><div class="note">Expenses ${RM(expCost)} · Bills ${RM(billsCost)}</div></div>
+        <div class="card dcard"><div class="k"><span class="kt">${kic('cost','amber')}COST AND EXPENSES</span>${psel()}</div><div class="big blue">${RM(costTot)}</div><div class="note">Expenses ${RM(expCost)} · Bills ${RM(billsCost)} · Payroll ${RM(payCost)}</div></div>
         <div class="card dcard"><div class="k"><span class="kt">${kic('bills','red')}SUPPLIER BILLS</span><span class="sub">Last 365 days</span></div><div class="cnt"><b>${bill365.length}</b> Bills</div>
           <div class="legend2"><span><i style="background:var(--blue)"></i>Unpaid</span><span><i style="background:var(--amber)"></i>Partial</span><span><i style="background:var(--ok)"></i>Paid</span></div>
           <div class="bar"><span style="background:var(--blue);width:${apU/bbTot*100}%"></span><span style="background:var(--amber);width:${apP/bbTot*100}%"></span><span style="background:var(--ok);width:${apF/bbTot*100}%"></span></div>
@@ -1315,6 +1392,7 @@ function render(){
     cn.forEach(x=>{if(x.date>=pf&&x.date<=pt)totCn+=x.total;if(new Date(x.date).getFullYear()===yr)cnM[new Date(x.date).getMonth()]+=x.total;});
     exp.forEach(e=>{if(e.date>=pf&&e.date<=pt)totExp+=e.amount;});
     data.bills.forEach(b=>{if(b.status!=='void'&&b.date>=pf&&b.date<=pt)totExp+=(b.total||0);});
+    data.payslips.forEach(p=>{if(p.date>=pf&&p.date<=pt)totExp+=(p.serviceFee||0)+(p.allowance||0)+(p.employerStat||0);});
     const cell=v=>v?(v<0?'('+Math.abs(v).toFixed(0)+')':v.toFixed(0)):'-';
     const custList=[...new Set([...data.invoices.map(i=>i.cust),...data.contacts.map(c=>c.name)].filter(Boolean))].sort();
     const stmt=soa.cust?buildStatement(soa.cust,soa.from,soa.to):null;
@@ -1335,7 +1413,7 @@ function render(){
           <tr><td>Gross sales (invoiced)</td><td class="amt">${RM(totSales)}</td></tr>
           <tr><td>Less: credit notes</td><td class="amt">(${RM(totCn)})</td></tr>
           <tr style="background:#FBFCFC"><td><b>Net sales</b></td><td class="amt"><b>${RM(totSales-totCn)}</b></td></tr>
-          <tr><td>Less: expenses &amp; supplier bills</td><td class="amt">(${RM(totExp)})</td></tr>
+          <tr><td>Less: expenses, supplier bills &amp; payroll</td><td class="amt">(${RM(totExp)})</td></tr>
           <tr style="background:var(--green-soft)"><td><b>Net profit / (loss)</b></td><td class="amt"><b style="color:${(totSales-totCn-totExp)>=0?'var(--ok)':'var(--red)'}">${RM(totSales-totCn-totExp)}</b></td></tr>
         </tbody></table>
         <div style="padding:14px 18px"><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Net sales by month · ${yr}</div><div class="spark" style="height:60px">${salesM.map((v,i)=>{const mx=Math.max(...salesM,1);return `<div class="${i===new Date().getMonth()?'on':''}" style="height:${Math.max((v-cnM[i])/mx*100,3)}%" title="${MONTHS[i]}: ${RM(v-cnM[i])}"></div>`;}).join('')}</div><div style="display:flex;justify-content:space-between;font-size:10px;color:#9AA6A0;margin-top:4px">${MONTHS.map(m=>`<span>${m[0]}</span>`).join('')}</div></div>
@@ -1367,6 +1445,77 @@ function render(){
         </div></div>`;
     return;}
 
+  if(curView==='drivers'){
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Drivers</h1><div class="desc">Driver roster for trip-based service fee.</div></div><button class="btn" onclick="newDriver()">＋ New</button></div>
+      <div class="panel"><table><thead><tr><th>Driver</th><th>Status</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${data.drivers.map(d=>`<tr><td><b>${esc(d.name)}</b></td><td><span class="pill ${d.active!==false?'ready':'void'}">${d.active!==false?'Active':'Inactive'}</span></td>
+        <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editDriver('${d.id}')">Rename</button><button class="mini" onclick="toggleDriver('${d.id}')">${d.active!==false?'Deactivate':'Activate'}</button><button class="mini" onclick="delDriver('${d.id}')">Delete</button></td></tr>`).join('')}
+      </tbody></table>${data.drivers.length?'':'<div class="empty">📭<br>No drivers yet. Click “New”.</div>'}</div>`;
+    return;}
+
+  if(curView==='payroutes'){
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Route Rates</h1><div class="desc">Per-trip fee for each route.</div></div><button class="btn" onclick="newRoute()">＋ New</button></div>
+      <div class="panel"><table><thead><tr><th>Route</th><th class="amt">Fee / Trip</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${data.payRoutes.map(r=>`<tr><td><b>${esc(r.name)}</b></td><td class="amt">${RM(r.rate)}</td>
+        <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editRoute('${r.id}')">Edit</button><button class="mini" onclick="delRoute('${r.id}')">Delete</button></td></tr>`).join('')}
+      </tbody></table>${data.payRoutes.length?'':'<div class="empty">📭<br>No route rates yet. Click “New”.</div>'}</div>`;
+    return;}
+
+  if(curView==='trips'){
+    const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${tripForm.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
+    const rtOpts=data.payRoutes.map(r=>`<option ${tripForm.route===r.name?'selected':''}>${esc(r.name)}</option>`).join('');
+    const f=tripFilter;const list=filteredTrips();
+    const drvFilterOpts=[...new Set(data.trips.map(t=>t.driver))].filter(Boolean).sort();
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Trips</h1><div class="desc">Log each trip; fee auto-fills from the route rate.</div></div></div>
+      <div class="panel" style="padding:16px"><div class="filtergrid" style="grid-template-columns:auto 1fr 1fr auto auto;gap:10px;align-items:end">
+        <div class="fld"><label>Date</label><input type="date" value="${tripForm.date}" onchange="tSet('date',this.value)"></div>
+        <div class="fld"><label>Driver</label><select onchange="tSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
+        <div class="fld"><label>Route</label><select onchange="tSet('route',this.value)"><option value="">— pick —</option>${rtOpts}</select></div>
+        <div class="fld"><label>Truck (opt)</label><input value="${esc(tripForm.truck)}" onchange="tSet('truck',this.value)" style="width:110px"></div>
+        <div><button class="btn" onclick="addTrip()">＋ Add Trip</button></div>
+      </div>${data.drivers.length&&data.payRoutes.length?'':'<p class="note" style="margin-top:8px">Add at least one Driver and one Route Rate first.</p>'}</div>
+      <div class="filterbar"><div class="filtergrid" style="grid-template-columns:1.4fr 1fr">
+        <div class="fld"><label>Date Range</label><div class="daterange"><input type="date" value="${f.from}" onchange="tfSet('from',this.value)"><span>→</span><input type="date" value="${f.to}" onchange="tfSet('to',this.value)"></div></div>
+        <div class="fld"><label>Driver</label><select onchange="tfSet('driver',this.value)"><option value="">All</option>${drvFilterOpts.map(d=>`<option ${f.driver===d?'selected':''}>${esc(d)}</option>`).join('')}</select></div>
+      </div></div>
+      <div class="panel"><table><thead><tr><th>Date</th><th>Driver</th><th>Route</th><th>Truck</th><th class="amt">Fee</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${list.map(t=>`<tr><td>${t.date}</td><td>${esc(t.driver)}</td><td>${esc(t.route)}</td><td>${esc(t.truck||'-')}</td><td class="amt">${RM(t.rate)}</td>
+        <td style="text-align:right"><button class="mini" onclick="delTrip('${t.id}')">Delete</button></td></tr>`).join('')}
+      </tbody></table>${list.length?'':'<div class="empty">📭<br>No trips logged yet.</div>'}</div>`;
+    return;}
+
+  if(curView==='payrun'){
+    const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${payRun.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
+    const trips=prTrips();const fee=prServiceFee();const net=prNet();const cost=fee+(payRun.allowance||0)+(payRun.employerStat||0);
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Pay Run</h1><div class="desc">Monthly driver settlement → payment voucher.</div></div></div>
+      <div class="panel" style="padding:18px">
+        <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:14px">
+          <div class="fld"><label>Driver</label><select onchange="prSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
+          <div class="fld"><label>Period (month)</label><input type="month" value="${payRun.period}" onchange="prSet('period',this.value)"></div>
+        </div>
+        ${payRun.driver?`<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px">
+          <div class="row2"><span class="lab">Trips this period</span><b>${trips.length}</b></div>
+          <div class="row2"><span class="lab">Service Fee (${trips.length} trips × route rates)</span><b>${RM(fee)}</b></div>
+          <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+            <div class="fld"><label>Allowance (+)</label><input type="number" step="0.01" value="${payRun.allowance||''}" onchange="prSet('allowance',this.value)"></div>
+            <div class="fld"><label>Advance (−)</label><input type="number" step="0.01" value="${payRun.advance||''}" onchange="prSet('advance',this.value)"></div>
+          </div>
+          <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+            <div class="fld"><label>Employee statutory (−) <span class="desc">deducted from driver · from HR.my</span></label><input type="number" step="0.01" value="${payRun.deduction||''}" onchange="prSet('deduction',this.value)"></div>
+            <div class="fld"><label>Employer statutory <span class="desc">company cost, NOT deducted · from HR.my</span></label><input type="number" step="0.01" value="${payRun.employerStat||''}" onchange="prSet('employerStat',this.value)"></div>
+          </div>
+          <div class="fld" style="margin-top:12px"><label>Note</label><input value="${esc(payRun.note)}" onchange="prSet('note',this.value)"></div>
+          <div class="row2" style="margin-top:14px;font-size:18px"><span><b>Net Pay to Driver</b></span><b style="color:var(--ok)">${RM(net)}</b></div>
+          <div class="row2" style="margin-top:4px;color:var(--muted)"><span>Company cost (service fee + allowance + employer statutory)</span><b>${RM(cost)}</b></div>
+          <div style="margin-top:14px"><button class="btn" onclick="generatePayslip()">Generate Payment Voucher</button></div>
+        </div>`:`<p class="note" style="margin-top:12px">Pick a driver and period to compute their service fee.</p>`}
+      </div>
+      ${data.payslips.length?`<div class="panel"><h2 style="padding:14px 18px 0">Payslip History</h2><table><thead><tr><th>No</th><th>Date</th><th>Driver</th><th>Period</th><th class="amt">Trips</th><th class="amt">Net Pay</th><th style="text-align:right">Action</th></tr></thead><tbody>
+        ${data.payslips.slice().reverse().map(p=>`<tr><td>${esc(p.no)}</td><td>${p.date}</td><td>${esc(p.driver)}</td><td>${esc(p.period)}</td><td class="amt">${p.tripsCount}</td><td class="amt"><b>${RM(p.net)}</b></td>
+          <td style="text-align:right;white-space:nowrap"><button class="mini g" onclick="printPayslip('${p.no}')">Print</button><button class="mini" onclick="delPayslip('${p.no}')">Delete</button></td></tr>`).join('')}
+        </tbody></table></div>`:''}`;
+    return;}
+
   if(curView==='contacts'){
     const list=filteredContacts();
     el.innerHTML=`<div class="page-head"><div><h1>Contacts</h1><div class="desc">Saved customers — pick them when creating documents.</div></div><button class="btn" onclick="newContact()">＋ New</button></div>
@@ -1394,7 +1543,7 @@ function render(){
     return;}
 }
 overlay.addEventListener('click',e=>{if(e.target.id==='overlay')closeModal();});
-load();
+bootAuth();
 </script>
 </body>
 </html>
