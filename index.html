@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.17</title>
+<title>DHExpress v3.18</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -20,7 +20,7 @@
   .brand .logo{width:28px;height:28px;border-radius:7px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
   .brand small{display:block;font-size:11px;color:var(--muted);font-weight:500}
   .nav a{display:flex;align-items:center;gap:11px;padding:9px 18px;color:var(--muted);text-decoration:none;font-size:15px;font-weight:500;cursor:pointer;border-left:3px solid transparent}
-  .nav a .ic{width:16px;text-align:center}
+  .nav a .ic{width:20px;height:18px;display:inline-flex;align-items:center;justify-content:center;flex:none}
   .nav a.active{color:var(--green);background:var(--green-soft);border-left-color:var(--green)}
   .nav a:hover:not(.active){background:#F1F4FB}
   .nav .grp{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#94A3B8;font-weight:600;padding:12px 18px 5px}
@@ -241,29 +241,30 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.17</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.18</small></div></div>
     <nav class="nav" id="nav">
-      <a class="active" data-view="dash"><span class="ic">▦</span> Dashboard</a>
+      <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="grp">Sales</div>
-      <a data-view="quotation"><span class="ic">📄</span> Quotation</a>
-      <a data-view="invoice"><span class="ic">🧾</span> Invoice</a>
-      <a data-view="creditnote"><span class="ic">↩︎</span> Credit Note</a>
-      <a data-view="deliveryorders"><span class="ic">🚚</span> Delivery Order</a>
-      <a data-view="payments"><span class="ic">💰</span> Payments</a>
+      <a data-view="quotation"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M15 3v4h4"/><path d="M9 12h6M9 16h4"/></svg></span> Quotation</a>
+      <a data-view="invoice"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-2.5-1.6L14 21l-2-1.6L10 21l-2-1.6L5 21z"/><path d="M9 8h6M9 12h6"/></svg></span> Invoice</a>
+      <a data-view="creditnote"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 5 3 10 8 10"/><path d="M3.5 10a8 8 0 1 0 1.9-3.3"/></svg></span> Credit Note</a>
+      <a data-view="deliveryorders"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v9H2z"/><path d="M13 9h4l3 3v3h-7z"/><circle cx="6" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg></span> Delivery Order</a>
+      <a data-view="payments"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M14.6 9.2c-.6-.8-1.7-1-2.6-.6-.9.4-.9 1.5 0 1.9l1.6.8c.9.4.9 1.5 0 1.9-.9.4-2 .2-2.6-.6"/></svg></span> Payments</a>
       <div class="grp">Purchase</div>
-      <a data-view="purchase"><span class="ic">💳</span> Expenses</a>
-      <a data-view="bills"><span class="ic">🧾</span> Supplier Bills</a>
-      <a data-view="billpayments"><span class="ic">💸</span> Supplier Payments</a>
+      <a data-view="purchase"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></span> Expenses</a>
+      <a data-view="bills"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1H9z"/><path d="M9 11h6M9 15h4"/></svg></span> Supplier Bills</a>
+      <a data-view="billpayments"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/><path d="M6 12h.4M17.6 12h.4"/></svg></span> Supplier Payments</a>
       <div class="grp">Payroll</div>
-      <a data-view="drivers"><span class="ic">🧑‍✈️</span> Drivers</a>
-      <a data-view="payroutes"><span class="ic">🛣️</span> Route Rates</a>
-      <a data-view="trips"><span class="ic">🚏</span> Trips</a>
-      <a data-view="payrun"><span class="ic">💵</span> Pay Run</a>
+      <a data-view="drivers"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg></span> Drivers</a>
+      <a data-view="payroutes"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h6a4 4 0 0 0 0-8H10a4 4 0 0 1 0-8h6"/></svg></span> Route Rates</a>
+      <a data-view="trips"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></span> Trips</a>
+      <a data-view="payrun"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/></svg></span> Pay Run</a>
       <div class="grp">Reports</div>
-      <a data-view="reports"><span class="ic">📊</span> Reports</a>
+      <a data-view="reports"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="11" width="3" height="8"/><rect x="10.5" y="6" width="3" height="13"/><rect x="16" y="14" width="3" height="5"/></svg></span> Reports</a>
       <div class="grp">Setup</div>
-      <a data-view="contacts"><span class="ic">👤</span> Contacts</a>
-      <a data-view="settings"><span class="ic">⚙️</span> Company settings</a>
+      <a data-view="ratecard"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12l-8 8-9-9V4h7z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg></span> Rate Card</a>
+      <a data-view="contacts"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5.2a3.5 3.5 0 0 1 0 6.6M22 20a6 6 0 0 0-4-5.7"/></svg></span> Contacts</a>
+      <a data-view="settings"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span> Company settings</a>
     </nav>
   </aside>
   <div class="main">
@@ -318,7 +319,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;
-const APP_VERSION='3.17';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.18';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -330,7 +331,7 @@ function lockApp(){fetch('/api/logout',{method:'POST'}).finally(()=>location.rel
 function bootAuth(){fetch('/api/me').then(r=>r.json()).then(j=>{if(j&&j.authed){load();}else{showGate();}}).catch(()=>showGate());}
 let data={
   company:{name:'DHEXPRESS LOGISTICS SDN BHD',reg:'1683906-D',phone:'',email:'',addr:'',sstreg:'no',sstno:'',bank:'',terms:30,nextInv:1,nextQuo:1,nextCn:1,nextRcp:1,nextBill:1,nextPV:1,nextDO:1,nextPay:1},
-  quotations:[],invoices:[],creditNotes:[],expenses:[],contacts:[],bills:[],deliveryOrders:[],drivers:[],payRoutes:[],trips:[],payslips:[]
+  quotations:[],invoices:[],creditNotes:[],expenses:[],contacts:[],bills:[],deliveryOrders:[],drivers:[],payRoutes:[],trips:[],payslips:[],rateCard:[],specialRates:[]
 };
 let curType='invoice',curView='dash',lineRows=[],dashPeriod='30',editingExpId=null;
 const RM=n=>'RM '+(Number(n)||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -373,7 +374,7 @@ function donutChart(entries){const total=entries.reduce((s,e)=>s+e.value,0)||1,r
   const segs=entries.map(e=>{const frac=e.value/total,seg=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${e.color}" stroke-width="15" stroke-dasharray="${(frac*C).toFixed(2)} ${(C-frac*C).toFixed(2)}" stroke-dashoffset="${(-off*C).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=frac;return seg;}).join('');
   return `<svg viewBox="0 0 104 104" style="width:104px;height:104px;flex:none">${segs}</svg>`;}
 
-async function load(){let un=false;try{const r=await fetch('/api/state');if(r.status===401){un=true;}else if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(un){showGate();return;}if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(!data.drivers)data.drivers=[];if(!data.payRoutes)data.payRoutes=[];if(!data.trips)data.trips=[];if(!data.payslips)data.payslips=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;if(data.company.nextPay==null)data.company.nextPay=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
+async function load(){let un=false;try{const r=await fetch('/api/state');if(r.status===401){un=true;}else if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(un){showGate();return;}if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(!data.drivers)data.drivers=[];if(!data.payRoutes)data.payRoutes=[];if(!data.trips)data.trips=[];if(!data.payslips)data.payslips=[];if(!data.rateCard)data.rateCard=[];if(!data.specialRates)data.specialRates=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;if(data.company.nextPay==null)data.company.nextPay=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
 async function save(){mem=data;try{const r=await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});if(r&&r.status===401){showGate();}}catch(e){}render();}
 
 /* nav */
@@ -919,6 +920,21 @@ function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
   ${p.employerStat?`<div class="terms">Employer statutory (EPF/SOCSO/EIS) borne by the company, not deducted from the driver: ${RM(p.employerStat)}.</div>`:''}
   ${p.note?`<div class="terms"><b>Note:</b> ${esc(p.note)}</div>`:''}
   <div class="sign"><div class="box">Received by (Driver)<br>Name / Date</div><div class="box">Approved by<br>For ${esc(data.company.name)}</div></div><div class="foot">Computer-generated payment voucher. Statutory figures per HR.my.</div></div>`);}
+/* ===== Rate Card + customer special rates ===== */
+function newRateItem(){const n=prompt('Rate item name (e.g. Miri to KK, LCL):');if(!n||!n.trim())return;const u=prompt('Unit (e.g. per m3, per kg, per trip):','');const r=prompt('Standard rate (RM):','0');data.rateCard.push({id:'RC'+Date.now(),name:n.trim(),unit:(u||'').trim(),rate:parseFloat(r)||0});save();}
+function editRateItem(id){const it=data.rateCard.find(x=>x.id===id);if(!it)return;const n=prompt('Name:',it.name);if(n===null)return;const u=prompt('Unit:',it.unit||'');if(u===null)return;const r=prompt('Standard rate (RM):',it.rate);if(r===null)return;it.name=n.trim()||it.name;it.unit=(u||'').trim();it.rate=parseFloat(r)||0;save();}
+function delRateItem(id){if(!confirm('Delete this rate item? Customer special rates for it are removed too.'))return;data.rateCard=data.rateCard.filter(x=>x.id!==id);data.specialRates=data.specialRates.filter(sp=>sp.itemId!==id);save();}
+let srPick={cust:'',itemId:'',rate:''};
+function srSet(k,v){srPick[k]=v;render();}
+function addSpecialRate(){if(!srPick.cust){alert('Pick a customer.');return;}if(!srPick.itemId){alert('Pick a rate item.');return;}const rate=parseFloat(srPick.rate);if(isNaN(rate)){alert('Enter a special rate.');return;}
+  const ex=data.specialRates.find(sp=>sp.cust===srPick.cust&&sp.itemId===srPick.itemId);
+  if(ex){ex.rate=rate;}else{data.specialRates.push({id:'SR'+Date.now(),cust:srPick.cust,itemId:srPick.itemId,rate:rate});}
+  srPick={cust:'',itemId:'',rate:''};save();}
+function delSpecialRate(id){data.specialRates=data.specialRates.filter(sp=>sp.id!==id);save();}
+function rateCardOptions(){return '<option value="">＋ From rate card…</option>'+data.rateCard.map(r=>`<option value="${r.id}">${esc(r.name)}${r.unit?(' ('+esc(r.unit)+')'):''} — RM${(r.rate||0).toFixed(2)}</option>`).join('');}
+function rateFor(itemId,cust){const sp=data.specialRates.find(s=>s.itemId===itemId&&s.cust===cust);if(sp)return sp.rate;const it=data.rateCard.find(x=>x.id===itemId);return it?it.rate:0;}
+function addFromRate(which,itemId){if(!itemId)return;const it=data.rateCard.find(x=>x.id===itemId);if(!it)return;const form=which==='iv'?invForm:quoteForm;if(!form)return;const cust=form.cust||'';const price=rateFor(itemId,cust);
+  form.items.push({desc:it.name+(it.unit?(' '+it.unit):''),qty:1,price:price,disc:0,taxPct:0});render();}
 function render(){
   const c=data.company;document.getElementById('coName').textContent=c.name;const el=document.getElementById('content');
   const missing=[];if(!c.addr)missing.push('address');if(!c.bank)missing.push('bank details');if(c.sstreg==='yes'&&!c.sstno)missing.push('SST no.');
@@ -1018,7 +1034,7 @@ function render(){
             <td><input class="r" type="number" step="0.01" value="${it.disc}" oninput="qfItem(${i},'disc',this.value)"></td>
             <td>${sstAvail?`<select onchange="qfItem(${i},'taxPct',this.value)"><option value="0" ${it.taxPct==0?'selected':''}>None</option><option value="6" ${it.taxPct==6?'selected':''}>SST 6%</option></select>`:'<span style="color:#9AA6A0;font-size:12px;padding-left:6px">None</span>'}</td>
             <td class="x" onclick="qfRmItem(${i})">×</td></tr>`).join('')}</tbody></table>
-          <button class="btn" style="margin-top:10px" onclick="qfAddItem()">＋ Item</button>
+          <button class="btn" style="margin-top:10px" onclick="qfAddItem()">＋ Item</button>${data.rateCard.length?`<select onchange="addFromRate('qf',this.value);this.value=''" style="margin:10px 0 0 8px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;color:var(--green);font-weight:600">${rateCardOptions()}</select>`:''}
           <div class="qtot" id="qtotBox">${quoteTotalsHTML(t)}</div><div style="clear:both"></div></div>
         <div class="qsec" id="qs-pay"><div class="h" style="font-size:15px;font-weight:600;margin-bottom:8px">Payment Terms</div>
           <table class="itbl"><thead><tr><th>Term</th><th>Due On</th><th class="r">Amount</th><th>Description</th><th></th></tr></thead><tbody>
@@ -1096,7 +1112,7 @@ function render(){
             <td><input class="r" type="number" step="0.01" value="${it.disc}" oninput="ivItem(${i},'disc',this.value)"></td>
             <td>${sstAvail?`<select onchange="ivItem(${i},'taxPct',this.value)"><option value="0" ${it.taxPct==0?'selected':''}>None</option><option value="6" ${it.taxPct==6?'selected':''}>SST 6%</option></select>`:'<span style="color:#9AA6A0;font-size:12px;padding-left:6px">None</span>'}</td>
             <td class="x" onclick="ivRmItem(${i})">×</td></tr>`).join('')}</tbody></table>
-          <button class="btn" style="margin-top:10px" onclick="ivAddItem()">＋ Item</button>
+          <button class="btn" style="margin-top:10px" onclick="ivAddItem()">＋ Item</button>${data.rateCard.length?`<select onchange="addFromRate('iv',this.value);this.value=''" style="margin:10px 0 0 8px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;color:var(--green);font-weight:600">${rateCardOptions()}</select>`:''}
           <div class="qtot" id="qtotBox">${docTotalsHTML(f,t)}</div><div style="clear:both"></div></div>
         <div class="qsec" id="is-add"><div class="qsec-grid"><div class="h">Additional Info<p>Remarks displayed on the invoice.</p></div>
           <div style="grid-column:span 2"><div class="qf"><label>Remarks</label><textarea style="min-height:80px" oninput="ivSet('remarks',this.value)">${esc(f.remarks)}</textarea></div>
@@ -1514,6 +1530,26 @@ function render(){
         ${data.payslips.slice().reverse().map(p=>`<tr><td>${esc(p.no)}</td><td>${p.date}</td><td>${esc(p.driver)}</td><td>${esc(p.period)}</td><td class="amt">${p.tripsCount}</td><td class="amt"><b>${RM(p.net)}</b></td>
           <td style="text-align:right;white-space:nowrap"><button class="mini g" onclick="printPayslip('${p.no}')">Print</button><button class="mini" onclick="delPayslip('${p.no}')">Delete</button></td></tr>`).join('')}
         </tbody></table></div>`:''}`;
+    return;}
+
+  if(curView==='ratecard'){
+    const custs=[...new Set([...data.invoices.map(i=>i.cust),...data.quotations.map(q=>q.cust),...data.contacts.map(c=>c.name)].filter(Boolean))].sort();
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Setup / </span>Rate Card</h1><div class="desc">Preset standard rates, plus special rates for specific customers.</div></div><button class="btn" onclick="newRateItem()">＋ New Rate</button></div>
+      <div class="panel"><h2 style="padding:14px 18px 0">Standard Rates</h2><table><thead><tr><th>Item / Route</th><th>Unit</th><th class="amt">Standard Rate</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${data.rateCard.map(r=>`<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.unit||'-')}</td><td class="amt">${RM(r.rate)}</td>
+        <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editRateItem('${r.id}')">Edit</button><button class="mini" onclick="delRateItem('${r.id}')">Delete</button></td></tr>`).join('')}
+      </tbody></table>${data.rateCard.length?'':'<div class="empty">📭<br>No rates yet. Click “New Rate”.</div>'}</div>
+      <div class="panel"><h2 style="padding:14px 18px 0">Customer Special Rates <span class="period">override the standard rate for a specific customer</span></h2>
+        ${data.rateCard.length?`<div style="padding:8px 18px"><div class="filtergrid" style="grid-template-columns:1.3fr 1.6fr auto auto;gap:10px;align-items:end">
+          <div class="fld"><label>Customer</label><select onchange="srSet('cust',this.value)"><option value="">— pick —</option>${custs.map(c=>`<option value="${esc(c)}" ${srPick.cust===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
+          <div class="fld"><label>Rate Item</label><select onchange="srSet('itemId',this.value)"><option value="">— pick —</option>${data.rateCard.map(r=>`<option value="${r.id}" ${srPick.itemId===r.id?'selected':''}>${esc(r.name)}${r.unit?(' ('+esc(r.unit)+')'):''}</option>`).join('')}</select></div>
+          <div class="fld"><label>Special Rate (RM)</label><input type="number" step="0.01" value="${srPick.rate}" onchange="srSet('rate',this.value)" style="width:120px"></div>
+          <div><button class="btn" onclick="addSpecialRate()">Set Rate</button></div>
+        </div></div>`:'<p class="note" style="padding:10px 18px">Add a standard rate first, then set customer special rates.</p>'}
+        <table><thead><tr><th>Customer</th><th>Rate Item</th><th class="amt">Standard</th><th class="amt">Special</th><th style="text-align:right">Action</th></tr></thead><tbody>
+        ${data.specialRates.map(sp=>{const it=data.rateCard.find(x=>x.id===sp.itemId);return `<tr><td><b>${esc(sp.cust)}</b></td><td>${it?esc(it.name):'(deleted)'}</td><td class="amt">${it?RM(it.rate):'-'}</td><td class="amt"><b style="color:var(--green)">${RM(sp.rate)}</b></td>
+          <td style="text-align:right"><button class="mini" onclick="delSpecialRate('${sp.id}')">Delete</button></td></tr>`;}).join('')}
+        </tbody></table>${data.specialRates.length?'':'<div class="empty" style="padding:20px 0">No special rates set.</div>'}</div>`;
     return;}
 
   if(curView==='contacts'){
