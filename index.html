@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.8</title>
+<title>DHExpress v3.13</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -221,13 +221,14 @@
 <body>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.8</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.13</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic">▦</span> Dashboard</a>
       <div class="grp">Sales</div>
       <a data-view="quotation"><span class="ic">📄</span> Quotation</a>
       <a data-view="invoice"><span class="ic">🧾</span> Invoice</a>
       <a data-view="creditnote"><span class="ic">↩︎</span> Credit Note</a>
+      <a data-view="deliveryorders"><span class="ic">🚚</span> Delivery Order</a>
       <a data-view="payments"><span class="ic">💰</span> Payments</a>
       <div class="grp">Purchase</div>
       <a data-view="purchase"><span class="ic">💳</span> Expenses</a>
@@ -291,11 +292,11 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;
-const APP_VERSION='3.8';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.13';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 let data={
-  company:{name:'DHEXPRESS LOGISTICS SDN BHD',reg:'1683906-D',phone:'',email:'',addr:'',sstreg:'no',sstno:'',bank:'',terms:30,nextInv:1,nextQuo:1,nextCn:1,nextRcp:1,nextBill:1,nextPV:1},
-  quotations:[],invoices:[],creditNotes:[],expenses:[],contacts:[],bills:[]
+  company:{name:'DHEXPRESS LOGISTICS SDN BHD',reg:'1683906-D',phone:'',email:'',addr:'',sstreg:'no',sstno:'',bank:'',terms:30,nextInv:1,nextQuo:1,nextCn:1,nextRcp:1,nextBill:1,nextPV:1,nextDO:1},
+  quotations:[],invoices:[],creditNotes:[],expenses:[],contacts:[],bills:[],deliveryOrders:[]
 };
 let curType='invoice',curView='dash',lineRows=[],dashPeriod='30',editingExpId=null;
 const RM=n=>'RM '+(Number(n)||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -338,13 +339,13 @@ function donutChart(entries){const total=entries.reduce((s,e)=>s+e.value,0)||1,r
   const segs=entries.map(e=>{const frac=e.value/total,seg=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${e.color}" stroke-width="15" stroke-dasharray="${(frac*C).toFixed(2)} ${(C-frac*C).toFixed(2)}" stroke-dashoffset="${(-off*C).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=frac;return seg;}).join('');
   return `<svg viewBox="0 0 104 104" style="width:104px;height:104px;flex:none">${segs}</svg>`;}
 
-async function load(){try{const r=await fetch('/api/state');if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
+async function load(){try{const r=await fetch('/api/state');if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
 async function save(){mem=data;try{await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch(e){}render();}
 
 /* nav */
 document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('a[data-view]');if(!a)return;
   curView=a.dataset.view;document.querySelectorAll('#nav a').forEach(x=>x.classList.toggle('active',x===a));render();});
-function quickNew(){if(curView==='quotation'||curView==='quoteform')return newQuoteForm();if(curView==='invoice'||curView==='invform')return newInvForm();if(curView==='creditnote'||curView==='cnform')return newCnForm();if(curView==='bills'||curView==='billform')return newBillForm();const map={purchase:'expense'};if(map[curView])return openModal(map[curView]);return newInvForm();}
+function quickNew(){if(curView==='quotation'||curView==='quoteform')return newQuoteForm();if(curView==='invoice'||curView==='invform')return newInvForm();if(curView==='creditnote'||curView==='cnform')return newCnForm();if(curView==='bills'||curView==='billform')return newBillForm();if(curView==='deliveryorders'||curView==='doform')return newDOForm();const map={purchase:'expense'};if(map[curView])return openModal(map[curView]);return newInvForm();}
 
 /* ---------- MODAL ---------- */
 function openModal(type){setType(type);iDate.value=todayISO();overlay.classList.add('show');}
@@ -387,6 +388,17 @@ function saveQuote(){if(!quoteForm.cust.trim()){alert('Enter a customer.');retur
   if(quoteForm._edit){const idx=data.quotations.findIndex(x=>x.no===quoteForm._edit);const prev=data.quotations[idx]||{};rec.status=prev.status||'pending';if(idx>=0)data.quotations[idx]=rec;}
   else{rec.status='pending';data.quotations.push(rec);data.company.nextQuo++;}
   quoteForm=null;curView='quotation';save();}
+function convertToInvoice(quoteNo){const q=data.quotations.find(x=>x.no===quoteNo);if(!q)return;
+  if(q.convertedTo){if(!confirm('This quotation was already converted to '+q.convertedTo+'. Create another invoice from it?'))return;}
+  const items=(q.items||[]).map(it=>({desc:it.desc,qty:it.qty,price:it.price,disc:it.disc||0,taxPct:it.taxPct||0})).filter(it=>(it.desc||'').trim()&&(it.qty||0)>0);
+  if(!items.length){alert('This quotation has no items to convert.');return;}
+  const inv={no:'INV.DHE.'+YR+'.'+pad3(data.company.nextInv),ref:q.no,date:todayISO(),title:q.title||'',description:q.description||'',internalNote:'',
+    cust:q.cust,billAttn:q.billAttn||'',billAddr:q.billAddr||'',showShip:q.showShip||false,shipAttn:q.shipAttn||'',shipAddr:q.shipAddr||'',
+    taxMode:q.taxMode||'exclusive',items:items,useRounding:q.useRounding||false,rounding:q.rounding||0,creditDays:(data.company.terms||30),remarks:q.remarks||'',docStatus:'ready'};
+  const t=docTotals(inv);inv.sub=t.sub;inv.discountGiven=t.disc;inv.sst=t.tax;inv.sstOn=t.tax>0;inv.total=t.total;inv.due=addDays(inv.date,inv.creditDays||0);
+  inv.paid=0;inv.receipts=[];inv.status='unpaid';
+  data.invoices.push(inv);data.company.nextInv++;q.convertedTo=inv.no;q.status='won';
+  curView='invoice';save();alert('Created '+inv.no+' from '+q.no+' — quotation marked Won.');}
 /* ===== generic doc totals ===== */
 function docTotals(f){let sub=0,disc=0,tax=0;const incl=f.taxMode==='inclusive';
   f.items.forEach(it=>{const gross=(it.qty||0)*(it.price||0);const net=gross-(it.disc||0);sub+=gross;disc+=(it.disc||0);const r=(it.taxPct||0)/100;if(r>0)tax+=incl?(net-net/(1+r)):(net*r);});
@@ -647,6 +659,54 @@ function printReceipt(invNo,rno){const inv=data.invoices.find(i=>i.no===invNo);i
   <div class="billto"><div><div class="lab">Received From</div><div class="v">${esc(inv.cust)}</div></div><div><div class="lab">Against Invoice</div><div class="v">${esc(inv.no)}${rec.method?('\nMethod: '+esc(rec.method)):''}</div></div></div>
   <div class="receipt-amt">Amount received: ${RM(rec.amount)}</div><div class="terms">Received with thanks. Invoice balance after this receipt: ${RM(outstanding(inv))}.</div>
   <div class="sign"><div class="box">&nbsp;</div><div class="box">For ${esc(data.company.name)}</div></div><div class="foot">Computer-generated receipt.</div></div>`);}
+/* ===== Delivery Orders ===== */
+let doForm=null;
+function blankDO(){return{no:'DO.DHE.'+YR+'.'+pad3(data.company.nextDO),ref:'',date:todayISO(),cust:'',attn:'',deliveryAddr:'',vehicle:'',driver:'',items:[{desc:'',qty:1,unit:''}],remarks:'',docStatus:'ready',_edit:null};}
+function newDOForm(){doForm=blankDO();curView='doform';render();}
+function editDOForm(no){const d=data.deliveryOrders.find(x=>x.no===no);if(!d)return;doForm=JSON.parse(JSON.stringify(d));doForm._edit=no;doForm._status=d.status;doForm.docStatus=doForm.docStatus||'ready';curView='doform';render();}
+function cancelDO(){doForm=null;curView='deliveryorders';render();}
+function doSet(k,v){doForm[k]=v;}
+function doItem(i,k,v){doForm.items[i][k]=(k==='qty')?(parseFloat(v)||0):v;}
+function doAddItem(){doForm.items.push({desc:'',qty:1,unit:''});render();}
+function doRmItem(i){doForm.items.splice(i,1);if(!doForm.items.length)doForm.items.push({desc:'',qty:1,unit:''});render();}
+function setDOStatus(s){doForm.docStatus=s;render();}
+function doPickCust(id){const c=data.contacts.find(x=>x.id===id);if(c){doForm.cust=c.name;doForm.deliveryAddr=c.address||'';}render();}
+function saveDO(){if(!doForm.cust.trim()){alert('Enter a customer.');return;}
+  const its=doForm.items.filter(it=>(it.desc||'').trim());if(!its.length){alert('Add at least one item.');return;}
+  const rec={no:doForm.no,ref:doForm.ref,date:doForm.date,cust:doForm.cust.trim(),attn:doForm.attn,deliveryAddr:doForm.deliveryAddr,vehicle:doForm.vehicle,driver:doForm.driver,items:its,remarks:doForm.remarks,docStatus:doForm.docStatus};
+  if(doForm._edit){const idx=data.deliveryOrders.findIndex(x=>x.no===doForm._edit);rec.status=(doForm._status==='void')?'void':'issued';if(idx>=0)data.deliveryOrders[idx]=rec;}
+  else{rec.status='issued';data.deliveryOrders.push(rec);data.company.nextDO++;}
+  doForm=null;curView='deliveryorders';save();}
+function voidDO(no){const d=data.deliveryOrders.find(x=>x.no===no);if(!d)return;if(d.status==='void'){d.status='issued';}else{if(!confirm('Void '+no+'?'))return;d.status='void';}save();}
+function convertToDO(invNo){const i=data.invoices.find(x=>x.no===invNo);if(!i)return;
+  const items=(i.items||[]).map(it=>({desc:it.desc,qty:it.qty,unit:''})).filter(it=>(it.desc||'').trim());
+  if(!items.length){alert('This invoice has no items.');return;}
+  const rec={no:'DO.DHE.'+YR+'.'+pad3(data.company.nextDO),ref:i.no,date:todayISO(),cust:i.cust,attn:i.billAttn||'',deliveryAddr:i.showShip?(i.shipAddr||i.billAddr||''):(i.billAddr||''),vehicle:'',driver:'',items:items,remarks:'',docStatus:'ready',status:'issued'};
+  data.deliveryOrders.push(rec);data.company.nextDO++;curView='deliveryorders';save();alert('Created '+rec.no+' from '+i.no+'.');}
+function printDO(no){const d=data.deliveryOrders.find(x=>x.no===no);if(!d)return;
+  const rows=d.items.map((it,idx)=>`<tr><td>${idx+1}</td><td>${esc(it.desc)}</td><td style="text-align:right">${it.qty||''}</td><td>${esc(it.unit||'')}</td></tr>`).join('');
+  doPrint(`<div class="doc">${coHeader()}<div class="doctype"><div class="t">DELIVERY ORDER</div><div class="m">DO No: <b>${esc(d.no)}</b><br>Date: ${d.date}${d.ref?('<br>Ref: '+esc(d.ref)):''}</div></div></div>
+  <div class="billto"><div><div class="lab">Deliver To</div><div class="v">${esc(d.cust)}${d.attn?('\nAttn: '+esc(d.attn)):''}\n${esc(d.deliveryAddr||'')}</div></div><div><div class="lab">Transport</div><div class="v">${d.vehicle?('Vehicle: '+esc(d.vehicle)):''}${d.driver?('\nDriver: '+esc(d.driver)):''}${(!d.vehicle&&!d.driver)?'-':''}</div></div></div>
+  <table class="items"><thead><tr><th style="width:44px">No</th><th>Description</th><th style="width:80px;text-align:right">Qty</th><th style="width:90px">Unit</th></tr></thead><tbody>${rows}</tbody></table>
+  ${d.remarks?`<div class="terms"><b>Remarks:</b> ${esc(d.remarks)}</div>`:''}
+  <div class="terms">Please check goods upon receipt. Goods received in good order and condition unless noted above.</div>
+  <div class="sign"><div class="box">Received by (Customer)<br>Name / Chop / Date</div><div class="box">Delivered by<br>For ${esc(data.company.name)}</div></div><div class="foot">Computer-generated delivery order.</div></div>`);}
+let doFilter={from:'',to:'',search:'',cust:'',status:'all'},doSort={key:'no',dir:-1},doSel=new Set();
+function dosStore(k,v){doFilter[k]=v;}
+function dosApply(k,v){doFilter[k]=v;render();}
+function dosSearch(){render();}
+function dosReset(){doFilter={from:'',to:'',search:'',cust:'',status:'all'};doSort={key:'no',dir:-1};render();}
+function doSortBy(k){if(doSort.key===k)doSort.dir*=-1;else{doSort.key=k;doSort.dir=1;}render();}
+function doToggle(no,on){if(on)doSel.add(no);else doSel.delete(no);render();}
+function doToggleAll(on){const l=filteredDOs();doSel=on?new Set(l.map(x=>x.no)):new Set();render();}
+function doBulkDelete(){if(!doSel.size)return;if(!confirm('Delete '+doSel.size+' selected DO(s)? This cannot be undone.'))return;data.deliveryOrders=data.deliveryOrders.filter(x=>!doSel.has(x.no));doSel=new Set();save();}
+function filteredDOs(){let list=data.deliveryOrders.slice();const f=doFilter;
+  if(f.from)list=list.filter(d=>d.date>=f.from);if(f.to)list=list.filter(d=>d.date<=f.to);
+  if(f.search){const s=f.search.toLowerCase();list=list.filter(d=>(d.no||'').toLowerCase().includes(s)||(d.cust||'').toLowerCase().includes(s)||(d.ref||'').toLowerCase().includes(s));}
+  if(f.cust)list=list.filter(d=>d.cust===f.cust);
+  if(f.status&&f.status!=='all'){if(f.status==='allbutvoid')list=list.filter(d=>d.status!=='void');else list=list.filter(d=>d.status===f.status);}
+  const k=doSort.key,dir=doSort.dir;list.sort((a,b)=>{let av,bv;if(k==='cust'){av=(a.cust||'').toLowerCase();bv=(b.cust||'').toLowerCase();}else if(k==='date'){av=a.date||'';bv=b.date||'';}else{av=a.no||'';bv=b.no||'';}return av<bv?-dir:av>bv?dir:0;});
+  return list;}
 /* Payments (aggregated receipts) */
 let editingContactId=null,ctFilter='';
 function newContact(){editingContactId=null;cN.value='';cAttn.value='';cAddr.value='';cPhone.value='';cEmail.value='';document.getElementById('cModalTitle').textContent='New contact';cOverlay.classList.add('show');}
@@ -669,6 +729,49 @@ function cPickContact(id){if(id&&cnForm){applyContact(cnForm,id);}render();}
 document.getElementById('cOverlay').addEventListener('click',e=>{if(e.target.id==='cOverlay')closeContact();});
 function activeInvGlobal(){return data.invoices.filter(i=>i.status!=='void');}
 let rFilter={year:YR,net:false,plFrom:YR+'-01-01',plTo:todayISO()};
+let soa={cust:'',from:YR+'-01-01',to:todayISO()};
+function setSoa(k,v){soa[k]=v;render();}
+function buildStatement(cust,from,to){const ev=[];
+  data.invoices.filter(i=>i.status!=='void'&&i.cust===cust).forEach(i=>ev.push({date:i.date,type:'Invoice',ref:i.no,debit:i.total||0,credit:0}));
+  data.invoices.filter(i=>i.cust===cust).forEach(i=>(i.receipts||[]).forEach(r=>ev.push({date:r.date,type:'Payment',ref:r.no,debit:0,credit:r.amount||0})));
+  data.creditNotes.filter(c=>c.cust===cust).forEach(c=>ev.push({date:c.date,type:'Credit Note',ref:c.no,debit:0,credit:c.total||0}));
+  ev.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+  let opening=0;ev.forEach(e=>{if(e.date<from)opening+=e.debit-e.credit;});
+  const rows=[];let bal=opening;
+  ev.filter(e=>e.date>=from&&e.date<=to).forEach(e=>{bal+=e.debit-e.credit;rows.push(Object.assign({},e,{bal}));});
+  return {opening,rows,closing:bal};}
+function printStatement(){if(!soa.cust){alert('Select a customer first.');return;}const st=buildStatement(soa.cust,soa.from,soa.to);const c=data.company;
+  doPrint(`<div class="doc">${coHeader()}<div class="doctype"><div class="t">STATEMENT OF ACCOUNT</div><div class="m">Date: ${todayISO()}<br>Period: ${soa.from} to ${soa.to}</div></div></div>
+  <div class="billto"><div><div class="lab">To</div><div class="v">${esc(soa.cust)}</div></div></div>
+  <table class="items"><thead><tr><th>Date</th><th>Type</th><th>Reference</th><th style="text-align:right">Debit (RM)</th><th style="text-align:right">Credit (RM)</th><th style="text-align:right">Balance (RM)</th></tr></thead><tbody>
+  <tr><td colspan="5"><b>Opening Balance</b></td><td style="text-align:right"><b>${(st.opening).toFixed(2)}</b></td></tr>
+  ${st.rows.map(r=>`<tr><td>${r.date}</td><td>${r.type}</td><td>${esc(r.ref)}</td><td style="text-align:right">${r.debit?r.debit.toFixed(2):''}</td><td style="text-align:right">${r.credit?r.credit.toFixed(2):''}</td><td style="text-align:right">${r.bal.toFixed(2)}</td></tr>`).join('')}
+  </tbody></table>
+  <div class="totals"><div class="tr grand"><span>Balance Due</span><span>${RM(st.closing)}</span></div></div>
+  <div class="terms">This statement reflects transactions up to ${soa.to}. Please settle any outstanding balance.${c.bank?('\nBank: '+esc(c.bank)):''}</div><div class="foot">Computer-generated statement.</div></div>`);}
+function exportInvoicesCSV(){const rows=[['No','Date','Customer','Due','SubTotal','SST','Total','Paid','Outstanding','Status']];
+  data.invoices.forEach(i=>rows.push([i.no,i.date,i.cust,i.due||'',(i.sub||0).toFixed(2),(i.sst||0).toFixed(2),(i.total||0).toFixed(2),(i.paid||0).toFixed(2),outstanding(i).toFixed(2),i.status]));downloadCSV('Invoices_'+todayISO()+'.csv',rows);}
+function exportCreditNotesCSV(){const rows=[['No','Date','Customer','Against Invoice','Reason','Total']];
+  data.creditNotes.forEach(c=>rows.push([c.no,c.date,c.cust,c.ref||'',c.reason||'',(c.total||0).toFixed(2)]));downloadCSV('CreditNotes_'+todayISO()+'.csv',rows);}
+function exportPaymentsCSV(){const rows=[['Receipt No','Date','Customer','Against Invoice','Method','Amount']];
+  allReceipts().forEach(r=>rows.push([r.no,r.date,r.cust,r.invNo,r.method,(r.amount||0).toFixed(2)]));downloadCSV('Payments_'+todayISO()+'.csv',rows);}
+function exportExpensesCSV(){const rows=[['Date','Paid To','Category','Description','Amount']];
+  data.expenses.forEach(e=>rows.push([e.date,e.supplier||'',e.cat||'',e.desc||'',(e.amount||0).toFixed(2)]));downloadCSV('Expenses_'+todayISO()+'.csv',rows);}
+function exportBillsCSV(){const rows=[['Bill No','Date','Supplier','Supplier Inv','Category','Due','Total','Paid','Outstanding','Status']];
+  data.bills.forEach(b=>rows.push([b.no,b.date,b.supplier,b.ref||'',b.category||'',b.due||'',(b.total||0).toFixed(2),(b.paid||0).toFixed(2),billOut(b).toFixed(2),b.status]));downloadCSV('SupplierBills_'+todayISO()+'.csv',rows);}
+function exportBillPaymentsCSV(){const rows=[['Voucher No','Date','Supplier','Against Bill','Method','Amount']];
+  allBillPayments().forEach(r=>rows.push([r.no,r.date,r.supplier,r.billNo,r.method,(r.amount||0).toFixed(2)]));downloadCSV('SupplierPayments_'+todayISO()+'.csv',rows);}
+function buildAging(){const today=new Date(todayISO());const byCust={};const tot={notDue:0,b30:0,b60:0,b90:0,b90p:0,total:0};
+  data.invoices.forEach(i=>{if(i.status==='void')return;const out=outstanding(i);if(out<=0.001)return;
+    const due=new Date(i.due||i.date);const days=Math.floor((today-due)/86400000);
+    let bk;if(days<=0)bk='notDue';else if(days<=30)bk='b30';else if(days<=60)bk='b60';else if(days<=90)bk='b90';else bk='b90p';
+    const c=byCust[i.cust]||(byCust[i.cust]={notDue:0,b30:0,b60:0,b90:0,b90p:0,total:0});
+    c[bk]+=out;c.total+=out;tot[bk]+=out;tot.total+=out;});
+  return {byCust,tot};}
+function exportAgingCSV(){const a=buildAging();const rows=[['Customer','Not Due','1-30','31-60','61-90','90+','Total']];
+  Object.entries(a.byCust).sort((x,y)=>y[1].total-x[1].total).forEach(([n,c])=>rows.push([n,c.notDue.toFixed(2),c.b30.toFixed(2),c.b60.toFixed(2),c.b90.toFixed(2),c.b90p.toFixed(2),c.total.toFixed(2)]));
+  rows.push(['TOTAL',a.tot.notDue.toFixed(2),a.tot.b30.toFixed(2),a.tot.b60.toFixed(2),a.tot.b90.toFixed(2),a.tot.b90p.toFixed(2),a.tot.total.toFixed(2)]);
+  downloadCSV('AR_Aging_'+todayISO()+'.csv',rows);}
 function setRYear(v){rFilter.year=parseInt(v)||YR;render();}
 function setPl(k,v){rFilter[k]=v;render();}
 function rReset(){rFilter={year:YR,net:false,plFrom:YR+'-01-01',plTo:todayISO()};render();}
@@ -880,9 +983,9 @@ function render(){
         </tr></thead><tbody>
         ${list.map(q=>`<tr>
           <td><input type="checkbox" class="cbx" ${qSel.has(q.no)?'checked':''} onclick="qToggle('${q.no}',this.checked)"></td>
-          <td>${esc(q.no)}</td><td>${q.date}</td><td>${esc(q.cust)}</td><td class="amt">${RM(q.total)}</td>
+          <td>${esc(q.no)}${q.convertedTo?`<div class="desc" style="font-size:11px">→ ${esc(q.convertedTo)}</div>`:''}</td><td>${q.date}</td><td>${esc(q.cust)}</td><td class="amt">${RM(q.total)}</td>
           <td><span class="pill ${qPillCls(qds(q))}" onclick="cycleQuo('${q.no}')" title="click to change">${QLBL[qds(q)]}</span></td>
-          <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editQuoteForm('${q.no}')">Edit</button><button class="mini g" onclick="printQuote('${q.no}')">Print</button></td>
+          <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editQuoteForm('${q.no}')">Edit</button><button class="mini g" onclick="printQuote('${q.no}')">Print</button><button class="mini" onclick="convertToInvoice('${q.no}')">→ Invoice</button></td>
         </tr>`).join('')}
         </tbody></table>${list.length?'':'<div class="empty">📭<br>No data</div>'}</div>`;
     return;}
@@ -951,7 +1054,7 @@ function render(){
           <td>${esc(i.no)}</td><td>${i.date}</td><td>${esc(i.cust)}</td><td>${i.due||'-'}</td>
           <td class="amt">${RM(i.total)}</td><td class="amt">${RM(outstanding(i))}</td>
           <td><span class="pill ${st}">${cap(st)}</span></td>
-          <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editInvForm('${i.no}')">Edit</button><button class="mini g" onclick="printInvoice('${i.no}')">Print</button>${i.status!=='void'?`<button class="mini" onclick="receivePay('${i.no}')">Receive</button>`:''}<button class="mini" onclick="voidInv('${i.no}')">${i.status==='void'?'Unvoid':'Void'}</button></td></tr>`;}).join('')}
+          <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editInvForm('${i.no}')">Edit</button><button class="mini g" onclick="printInvoice('${i.no}')">Print</button>${i.status!=='void'?`<button class="mini" onclick="convertToDO('${i.no}')">→ DO</button><button class="mini" onclick="receivePay('${i.no}')">Receive</button>`:''}<button class="mini" onclick="voidInv('${i.no}')">${i.status==='void'?'Unvoid':'Void'}</button></td></tr>`;}).join('')}
         </tbody></table>${list.length?'':'<div class="empty">📭<br>No data</div>'}</div>`;
     return;}
 
@@ -1148,6 +1251,60 @@ function render(){
         </tbody></table>${list.length?'':'<div class="empty">📭<br>No expenses yet. Click “New”.</div>'}</div>`;
     return;}
 
+  if(curView==='doform'){
+    const f=doForm;
+    el.innerHTML=`<div class="page-head"><div style="display:flex;align-items:center;gap:10px"><span style="cursor:pointer;font-size:20px" onclick="cancelDO()">←</span><h1>${f._edit?'Edit':'New'} Delivery Order</h1></div><span class="note">Goods delivered to a customer (signed on receipt)</span></div>
+      <div class="qform">
+        <div class="qsec"><div class="qsec-grid"><div class="h">Deliver To<p>Customer and delivery address.</p></div>
+          <div><div class="qf"><label>Customer <span class="req">*</span></label>${data.contacts.length?`<select onchange="doPickCust(this.value)" style="margin-bottom:6px">${contactOptions()}</select>`:''}<input value="${esc(f.cust)}" oninput="doSet('cust',this.value)" placeholder="Customer name"></div>
+            <div class="qf"><label>Attn</label><input value="${esc(f.attn)}" oninput="doSet('attn',this.value)" placeholder="Contact person"></div></div>
+          <div><div class="qf"><label>Delivery Address</label><textarea oninput="doSet('deliveryAddr',this.value)">${esc(f.deliveryAddr)}</textarea></div></div></div></div>
+        <div class="qsec"><div class="qsec-grid"><div class="h">Details<p>DO number, date, transport.</p></div>
+          <div><div class="qf"><label>DO No. <span class="req">*</span></label><input value="${esc(f.no)}" oninput="doSet('no',this.value)"></div>
+            <div class="qf"><label>DO Date <span class="req">*</span></label><input type="date" value="${f.date}" onchange="doSet('date',this.value)"></div>
+            <div class="qf"><label>Reference (Invoice/Order)</label><input value="${esc(f.ref)}" oninput="doSet('ref',this.value)"></div></div>
+          <div><div class="qf"><label>Vehicle No.</label><input value="${esc(f.vehicle)}" oninput="doSet('vehicle',this.value)"></div>
+            <div class="qf"><label>Driver</label><input value="${esc(f.driver)}" oninput="doSet('driver',this.value)"></div></div></div></div>
+        <div class="qsec"><div class="h" style="font-size:15px;font-weight:600;margin-bottom:6px">Items</div>
+          <table class="itbl"><thead><tr><th style="width:58%">Description</th><th class="r">Quantity</th><th style="width:120px">Unit</th><th></th></tr></thead><tbody>
+          ${f.items.map((it,i)=>`<tr><td><input value="${esc(it.desc)}" oninput="doItem(${i},'desc',this.value)" placeholder="Item / goods delivered"></td>
+            <td><input class="r" type="number" step="0.01" value="${it.qty}" oninput="doItem(${i},'qty',this.value)"></td>
+            <td><input value="${esc(it.unit||'')}" oninput="doItem(${i},'unit',this.value)" placeholder="ctn / pcs / kg"></td>
+            <td class="x" onclick="doRmItem(${i})">×</td></tr>`).join('')}</tbody></table>
+          <button class="btn" style="margin-top:10px" onclick="doAddItem()">＋ Item</button></div>
+        <div class="qsec"><div class="qsec-grid"><div class="h">Additional<p>Remarks and status.</p></div>
+          <div><div class="qf"><label>Remarks</label><textarea style="min-height:70px" oninput="doSet('remarks',this.value)">${esc(f.remarks)}</textarea></div></div>
+          <div><div class="qf"><label>Status</label><div class="statusseg"><button class="${f.docStatus==='draft'?'on':''}" onclick="setDOStatus('draft')">Draft</button><button class="${f.docStatus==='ready'?'on':''}" onclick="setDOStatus('ready')">Ready</button></div></div></div></div></div>
+        <div class="qbar"><button class="btn ghost" onclick="cancelDO()">Cancel</button><button class="btn" onclick="saveDO()">Save DO</button></div>
+      </div>`;
+    return;}
+
+  if(curView==='deliveryorders'){
+    const f=doFilter;const list=filteredDOs();
+    const custs=[...new Set(data.deliveryOrders.map(d=>d.cust).filter(Boolean))].sort();
+    const arrow=k=>doSort.key===k?`<span class="ar">${doSort.dir>0?'▲':'▼'}</span>`:'<span class="ar">↕</span>';
+    const allChecked=list.length&&list.every(d=>doSel.has(d.no));
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Sales / </span>Delivery Orders</h1><div class="desc">Goods delivered to customers (signed on receipt).</div></div><button class="btn" onclick="newDOForm()">＋ New</button></div>${warnHtml}
+      <div class="filterbar"><div class="filtergrid">
+        <div class="fld"><label>Date Range</label><div class="daterange"><input type="date" value="${f.from}" onchange="dosApply('from',this.value)"><span>→</span><input type="date" value="${f.to}" onchange="dosApply('to',this.value)"></div></div>
+        <div class="fld"><label>Search</label><input value="${esc(f.search)}" oninput="dosStore('search',this.value)" onkeydown="if(event.key==='Enter')dosSearch()" placeholder="DO no., customer or ref"></div>
+        <div class="fld"><label>Customer</label><select onchange="dosApply('cust',this.value)"><option value="">All</option>${custs.map(c=>`<option value="${esc(c)}" ${f.cust===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
+        <div class="fld"><label>Status</label><select onchange="dosApply('status',this.value)">${[['all','All'],['allbutvoid','All but Void'],['issued','Issued'],['void','Void']].map(([v,l])=>`<option value="${v}" ${f.status===v?'selected':''}>${l}</option>`).join('')}</select></div>
+      </div><div class="filteractions"><button class="iconbtn pri" onclick="dosSearch()">🔍</button><button class="iconbtn" onclick="dosReset()">↺</button></div></div>
+      ${doSel.size?`<div class="bulkbar"><b>${doSel.size} selected</b><button class="mini" onclick="doBulkDelete()">🗑 Delete</button><button class="mini" onclick="doSel=new Set();render()">Clear</button></div>`:''}
+      <div class="panel"><table><thead><tr>
+        <th style="width:34px"><input type="checkbox" class="cbx" ${allChecked?'checked':''} onclick="doToggleAll(this.checked)"></th>
+        <th class="sortable" onclick="doSortBy('no')">DO No. ${arrow('no')}</th><th class="sortable" onclick="doSortBy('date')">Date ${arrow('date')}</th>
+        <th class="sortable" onclick="doSortBy('cust')">Customer ${arrow('cust')}</th><th>Ref</th><th>Items</th>
+        <th>Status</th><th style="text-align:right">Action</th></tr></thead><tbody>
+        ${list.map(d=>`<tr>
+          <td><input type="checkbox" class="cbx" ${doSel.has(d.no)?'checked':''} onclick="doToggle('${d.no}',this.checked)"></td>
+          <td>${esc(d.no)}</td><td>${d.date}</td><td>${esc(d.cust)}</td><td>${esc(d.ref||'-')}</td><td>${(d.items||[]).length}</td>
+          <td><span class="pill ${d.status==='void'?'void':'ready'}">${d.status==='void'?'Void':'Issued'}</span></td>
+          <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editDOForm('${d.no}')">Edit</button><button class="mini g" onclick="printDO('${d.no}')">Print</button><button class="mini" onclick="voidDO('${d.no}')">${d.status==='void'?'Unvoid':'Void'}</button></td></tr>`).join('')}
+        </tbody></table>${list.length?'':'<div class="empty">📭<br>No delivery orders yet. Click “New”.</div>'}</div>`;
+    return;}
+
   if(curView==='reports'){
     const yr=rFilter.year,net=rFilter.net,years=reportYears();const pf=rFilter.plFrom,pt=rFilter.plTo;
     const custs=monthlyMatrix(yr,net);
@@ -1159,6 +1316,9 @@ function render(){
     exp.forEach(e=>{if(e.date>=pf&&e.date<=pt)totExp+=e.amount;});
     data.bills.forEach(b=>{if(b.status!=='void'&&b.date>=pf&&b.date<=pt)totExp+=(b.total||0);});
     const cell=v=>v?(v<0?'('+Math.abs(v).toFixed(0)+')':v.toFixed(0)):'-';
+    const custList=[...new Set([...data.invoices.map(i=>i.cust),...data.contacts.map(c=>c.name)].filter(Boolean))].sort();
+    const stmt=soa.cust?buildStatement(soa.cust,soa.from,soa.to):null;
+    const aging=buildAging();
     el.innerHTML=`<div class="page-head"><h1>Reports</h1></div>
       <div class="filterbar"><div class="filtergrid" style="grid-template-columns:1fr 1.2fr 1.4fr .8fr">
         <div class="fld"><label>Monthly Sales — Year</label><select onchange="setRYear(this.value)">${years.map(y=>`<option value="${y}" ${y===yr?'selected':''}>${y}</option>`).join('')}</select></div>
@@ -1179,7 +1339,32 @@ function render(){
           <tr style="background:var(--green-soft)"><td><b>Net profit / (loss)</b></td><td class="amt"><b style="color:${(totSales-totCn-totExp)>=0?'var(--ok)':'var(--red)'}">${RM(totSales-totCn-totExp)}</b></td></tr>
         </tbody></table>
         <div style="padding:14px 18px"><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Net sales by month · ${yr}</div><div class="spark" style="height:60px">${salesM.map((v,i)=>{const mx=Math.max(...salesM,1);return `<div class="${i===new Date().getMonth()?'on':''}" style="height:${Math.max((v-cnM[i])/mx*100,3)}%" title="${MONTHS[i]}: ${RM(v-cnM[i])}"></div>`;}).join('')}</div><div style="display:flex;justify-content:space-between;font-size:10px;color:#9AA6A0;margin-top:4px">${MONTHS.map(m=>`<span>${m[0]}</span>`).join('')}</div></div>
-      </div>`;
+      </div>
+      <div class="panel"><h2>Statement of Account <span class="period">customer ledger</span>${soa.cust?`<button class="mini g" onclick="printStatement()">⤓ Print</button>`:''}</h2>
+        <div style="padding:0 18px 8px"><div class="filtergrid" style="grid-template-columns:1.4fr 1.6fr;gap:14px">
+          <div class="fld"><label>Customer</label><select onchange="setSoa('cust',this.value)"><option value="">— select —</option>${custList.map(c=>`<option value="${esc(c)}" ${soa.cust===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
+          <div class="fld"><label>Period</label><div class="daterange"><input type="date" value="${soa.from}" onchange="setSoa('from',this.value)"><span>→</span><input type="date" value="${soa.to}" onchange="setSoa('to',this.value)"></div></div>
+        </div></div>
+        ${stmt?`<table><thead><tr><th>Date</th><th>Type</th><th>Reference</th><th class="amt">Debit</th><th class="amt">Credit</th><th class="amt">Balance</th></tr></thead><tbody>
+          <tr style="background:#FBFCFC"><td colspan="5"><b>Opening Balance</b> <span class="desc">before ${soa.from}</span></td><td class="amt"><b>${RM(stmt.opening)}</b></td></tr>
+          ${stmt.rows.map(r=>`<tr><td>${r.date}</td><td>${r.type}</td><td>${esc(r.ref)}</td><td class="amt">${r.debit?RM(r.debit):'-'}</td><td class="amt">${r.credit?RM(r.credit):'-'}</td><td class="amt">${RM(r.bal)}</td></tr>`).join('')}
+          ${stmt.rows.length?'':`<tr><td colspan="6"><div class="empty" style="padding:14px 0">No transactions in this period.</div></td></tr>`}
+          </tbody><tfoot><tr style="background:var(--green-soft)"><td colspan="5"><b>Closing Balance (amount due)</b></td><td class="amt"><b style="color:${stmt.closing>0.001?'var(--red)':'var(--ok)'}">${RM(stmt.closing)}</b></td></tr></tfoot></table>`:`<div class="empty" style="padding:30px 0">Select a customer to view their statement</div>`}
+      </div>
+      <div class="panel"><h2>AR Aging <span class="period">outstanding by customer · as of ${todayISO()}</span><button class="mini g" onclick="exportAgingCSV()">⤓ Export CSV</button></h2>
+        ${Object.keys(aging.byCust).length?`<div style="overflow:auto"><table><thead><tr><th>Customer</th><th class="amt">Not Due</th><th class="amt">1-30</th><th class="amt">31-60</th><th class="amt">61-90</th><th class="amt">90+</th><th class="amt">Total</th></tr></thead><tbody>
+          ${Object.entries(aging.byCust).sort((x,y)=>y[1].total-x[1].total).map(([n,c])=>`<tr><td>${esc(n)}</td><td class="amt">${c.notDue?RM(c.notDue):'-'}</td><td class="amt">${c.b30?RM(c.b30):'-'}</td><td class="amt">${c.b60?RM(c.b60):'-'}</td><td class="amt">${c.b90?RM(c.b90):'-'}</td><td class="amt">${c.b90p?`<b style="color:var(--red)">${RM(c.b90p)}</b>`:'-'}</td><td class="amt"><b>${RM(c.total)}</b></td></tr>`).join('')}
+          </tbody><tfoot><tr style="background:#FBFCFC"><td><b>Total</b></td><td class="amt"><b>${RM(aging.tot.notDue)}</b></td><td class="amt"><b>${RM(aging.tot.b30)}</b></td><td class="amt"><b>${RM(aging.tot.b60)}</b></td><td class="amt"><b>${RM(aging.tot.b90)}</b></td><td class="amt"><b style="color:var(--red)">${RM(aging.tot.b90p)}</b></td><td class="amt"><b>${RM(aging.tot.total)}</b></td></tr></tfoot></table></div>`:`<div class="empty" style="padding:30px 0">No outstanding receivables 🎉</div>`}
+      </div>
+      <div class="panel"><h2>Export Data <span class="period">full datasets · CSV for your accountant</span></h2>
+        <div style="padding:8px 18px 16px;display:flex;flex-wrap:wrap;gap:10px">
+          <button class="btn ghost" onclick="exportInvoicesCSV()">⤓ Invoices</button>
+          <button class="btn ghost" onclick="exportCreditNotesCSV()">⤓ Credit Notes</button>
+          <button class="btn ghost" onclick="exportPaymentsCSV()">⤓ Payments received</button>
+          <button class="btn ghost" onclick="exportBillsCSV()">⤓ Supplier Bills</button>
+          <button class="btn ghost" onclick="exportBillPaymentsCSV()">⤓ Supplier Payments</button>
+          <button class="btn ghost" onclick="exportExpensesCSV()">⤓ Expenses</button>
+        </div></div>`;
     return;}
 
   if(curView==='contacts'){
