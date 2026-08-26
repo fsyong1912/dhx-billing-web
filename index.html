@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.18</title>
+<title>DHExpress v3.19</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -241,7 +241,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.18</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.19</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="grp">Sales</div>
@@ -319,7 +319,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;
-const APP_VERSION='3.18';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.19';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -935,6 +935,16 @@ function rateCardOptions(){return '<option value="">＋ From rate card…</optio
 function rateFor(itemId,cust){const sp=data.specialRates.find(s=>s.itemId===itemId&&s.cust===cust);if(sp)return sp.rate;const it=data.rateCard.find(x=>x.id===itemId);return it?it.rate:0;}
 function addFromRate(which,itemId){if(!itemId)return;const it=data.rateCard.find(x=>x.id===itemId);if(!it)return;const form=which==='iv'?invForm:quoteForm;if(!form)return;const cust=form.cust||'';const price=rateFor(itemId,cust);
   form.items.push({desc:it.name+(it.unit?(' '+it.unit):''),qty:1,price:price,disc:0,taxPct:0});render();}
+function seedPresetRates(){const C=[
+  ['Miri → Kuching',120,1.50],['Miri → Sarikei',100,1.40],['Miri → Sibu',100,1.40],['Miri → Mukah',120,1.50],
+  ['Miri → Bintulu',60,1.00],['Miri → Limbang',80,1.20],['Miri → Lawas',140,1.50],['Miri → Kota Kinabalu',140,1.50],
+  ['Kota Kinabalu → Lawas',80,1.20],['Kota Kinabalu → Limbang',140,1.40],['Kota Kinabalu → Miri',180,1.60],['Kota Kinabalu → Bintulu',200,1.80],
+  ['Kota Kinabalu → Mukah',270,2.20],['Kota Kinabalu → Sibu',250,2.00],['Kota Kinabalu → Sarikei',270,2.20],['Kota Kinabalu → Kuching',290,2.50]];
+  if(!confirm('Load DHExpress Line C (customer bulk) preset rates — 16 routes × per m³ & per kg = 32 items? Existing rates are kept; duplicates (same route + unit) are skipped.'))return;
+  let added=0,seq=0;
+  C.forEach(([name,m3,kg])=>{[['per m³',m3],['per kg',kg]].forEach(([unit,rate])=>{
+    if(!data.rateCard.some(r=>r.name===name&&r.unit===unit)){data.rateCard.push({id:'RC'+Date.now()+(seq++),name:name,unit:unit,rate:rate});added++;}});});
+  save();alert('Added '+added+' preset rate(s). '+(32-added>0?(32-added)+' already existed (skipped).':''));}
 function render(){
   const c=data.company;document.getElementById('coName').textContent=c.name;const el=document.getElementById('content');
   const missing=[];if(!c.addr)missing.push('address');if(!c.bank)missing.push('bank details');if(c.sstreg==='yes'&&!c.sstno)missing.push('SST no.');
@@ -1534,7 +1544,7 @@ function render(){
 
   if(curView==='ratecard'){
     const custs=[...new Set([...data.invoices.map(i=>i.cust),...data.quotations.map(q=>q.cust),...data.contacts.map(c=>c.name)].filter(Boolean))].sort();
-    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Setup / </span>Rate Card</h1><div class="desc">Preset standard rates, plus special rates for specific customers.</div></div><button class="btn" onclick="newRateItem()">＋ New Rate</button></div>
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Setup / </span>Rate Card</h1><div class="desc">Preset standard rates, plus special rates for specific customers.</div></div><div style="display:flex;gap:8px"><button class="btn ghost" onclick="seedPresetRates()">Load DHExpress presets</button><button class="btn" onclick="newRateItem()">＋ New Rate</button></div></div>
       <div class="panel"><h2 style="padding:14px 18px 0">Standard Rates</h2><table><thead><tr><th>Item / Route</th><th>Unit</th><th class="amt">Standard Rate</th><th style="text-align:right">Action</th></tr></thead><tbody>
       ${data.rateCard.map(r=>`<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.unit||'-')}</td><td class="amt">${RM(r.rate)}</td>
         <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editRateItem('${r.id}')">Edit</button><button class="mini" onclick="delRateItem('${r.id}')">Delete</button></td></tr>`).join('')}
