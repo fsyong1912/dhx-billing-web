@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.20</title>
+<title>DHExpress v3.22</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -241,7 +241,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.20</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.22</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="grp">Sales</div>
@@ -258,6 +258,8 @@
       <a data-view="drivers"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg></span> Drivers</a>
       <a data-view="payroutes"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h6a4 4 0 0 0 0-8H10a4 4 0 0 1 0-8h6"/></svg></span> Route Rates</a>
       <a data-view="trips"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></span> Trips</a>
+      <a data-view="ot"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span> Overtime</a>
+      <a data-view="leave"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span> Leave</a>
       <a data-view="payrun"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/></svg></span> Pay Run</a>
       <div class="grp">Reports</div>
       <a data-view="reports"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="11" width="3" height="8"/><rect x="10.5" y="6" width="3" height="13"/><rect x="16" y="14" width="3" height="5"/></svg></span> Reports</a>
@@ -319,7 +321,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.20';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.22';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -331,7 +333,7 @@ function lockApp(){fetch('/api/logout',{method:'POST'}).finally(()=>location.rel
 function bootAuth(){fetch('/api/me').then(r=>r.json()).then(j=>{if(j&&j.authed){load();}else{showGate();}}).catch(()=>showGate());}
 let data={
   company:{name:'DHEXPRESS LOGISTICS SDN BHD',reg:'1683906-D',phone:'',email:'',addr:'',sstreg:'no',sstno:'',bank:'',terms:30,nextInv:1,nextQuo:1,nextCn:1,nextRcp:1,nextBill:1,nextPV:1,nextDO:1,nextPay:1},
-  quotations:[],invoices:[],creditNotes:[],expenses:[],contacts:[],bills:[],deliveryOrders:[],drivers:[],payRoutes:[],trips:[],payslips:[],rateCard:[],specialRates:[]
+  quotations:[],invoices:[],creditNotes:[],expenses:[],contacts:[],bills:[],deliveryOrders:[],drivers:[],payRoutes:[],trips:[],payslips:[],rateCard:[],specialRates:[],leaves:[],otRecords:[]
 };
 let curType='invoice',curView='dash',lineRows=[],dashPeriod='30',editingExpId=null;
 const RM=n=>'RM '+(Number(n)||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -374,7 +376,7 @@ function donutChart(entries){const total=entries.reduce((s,e)=>s+e.value,0)||1,r
   const segs=entries.map(e=>{const frac=e.value/total,seg=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${e.color}" stroke-width="15" stroke-dasharray="${(frac*C).toFixed(2)} ${(C-frac*C).toFixed(2)}" stroke-dashoffset="${(-off*C).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=frac;return seg;}).join('');
   return `<svg viewBox="0 0 104 104" style="width:104px;height:104px;flex:none">${segs}</svg>`;}
 
-async function load(){let un=false;try{const r=await fetch('/api/state');if(r.status===401){un=true;}else if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(un){showGate();return;}loadedRev=(data&&data._rev)||0;if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(!data.drivers)data.drivers=[];if(!data.payRoutes)data.payRoutes=[];if(!data.trips)data.trips=[];if(!data.payslips)data.payslips=[];if(!data.rateCard)data.rateCard=[];if(!data.specialRates)data.specialRates=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;if(data.company.nextPay==null)data.company.nextPay=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
+async function load(){let un=false;try{const r=await fetch('/api/state');if(r.status===401){un=true;}else if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(un){showGate();return;}loadedRev=(data&&data._rev)||0;if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(!data.drivers)data.drivers=[];if(!data.payRoutes)data.payRoutes=[];if(!data.trips)data.trips=[];if(!data.payslips)data.payslips=[];if(!data.rateCard)data.rateCard=[];if(!data.specialRates)data.specialRates=[];if(!data.leaves)data.leaves=[];if(!data.otRecords)data.otRecords=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;if(data.company.nextPay==null)data.company.nextPay=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
 async function save(){mem=data;
   try{
     const chk=await fetch('/api/state');
@@ -833,7 +835,7 @@ function exportMonthlyCSV(){const yr=rFilter.year,net=rFilter.net;const custs=mo
   const tot=Array(12).fill(0);Object.values(custs).forEach(arr=>arr.forEach((v,m)=>tot[m]+=v));rows.push(['Total',...tot.map(v=>v.toFixed(2)),tot.reduce((a,b)=>a+b,0).toFixed(2)]);
   downloadCSV('MonthlySales_'+yr+(net?'_net':'_gross')+'.csv',rows);}
 function exportPLCSV(){const from=rFilter.plFrom,to=rFilter.plTo;let s=0,c=0,e=0;
-  activeInvGlobal().forEach(i=>{if(i.date>=from&&i.date<=to)s+=i.total;});data.creditNotes.forEach(x=>{if(x.date>=from&&x.date<=to)c+=x.total;});data.expenses.forEach(x=>{if(x.date>=from&&x.date<=to)e+=x.amount;});data.bills.forEach(b=>{if(b.status!=='void'&&b.date>=from&&b.date<=to)e+=(b.total||0);});data.payslips.forEach(p=>{if(p.date>=from&&p.date<=to)e+=(p.serviceFee||0)+(p.allowance||0)+(p.employerStat||0);});
+  activeInvGlobal().forEach(i=>{if(i.date>=from&&i.date<=to)s+=i.total;});data.creditNotes.forEach(x=>{if(x.date>=from&&x.date<=to)c+=x.total;});data.expenses.forEach(x=>{if(x.date>=from&&x.date<=to)e+=x.amount;});data.bills.forEach(b=>{if(b.status!=='void'&&b.date>=from&&b.date<=to)e+=(b.total||0);});data.payslips.forEach(p=>{if(p.date>=from&&p.date<=to)e+=(p.serviceFee||0)+(p.ot||0)+(p.allowance||0)+(p.employerStat||0);});
   const rows=[['Profit & Loss',from+' to '+to],['Gross sales (invoiced)',s.toFixed(2)],['Less: credit notes',(-c).toFixed(2)],['Net sales',(s-c).toFixed(2)],['Less: expenses, bills & payroll',(-e).toFixed(2)],['Net profit/(loss)',(s-c-e).toFixed(2)]];
   downloadCSV('ProfitLoss_'+from+'_'+to+'.csv',rows);}
 let pFilter={from:'',to:'',search:'',cust:''},pSort={key:'date',dir:-1};
@@ -893,8 +895,16 @@ function summaryBox(cls,label,entries,amount){return `<div class="sumbox ${cls}"
 function listActions(html){return `<td style="text-align:right;white-space:nowrap">${html}</td>`;}
 
 /* ===== Payroll (driver trip service fee) ===== */
-function newDriver(){const n=prompt('Driver name:');if(n&&n.trim()){data.drivers.push({id:'D'+Date.now(),name:n.trim(),active:true});save();}}
-function editDriver(id){const d=data.drivers.find(x=>x.id===id);if(!d)return;const n=prompt('Driver name:',d.name);if(n&&n.trim()){d.name=n.trim();save();}}
+let drvForm=null;
+function drvBlank(id){return{id:id||('D'+Date.now()),name:'',active:true,nric:'',phone:'',email:'',address:'',position:'Driver',startDate:'',confirmDate:'',licenseNo:'',licenseExpiry:'',emgName:'',emgPhone:'',annualEnt:8,notes:''};}
+function newDriver(){drvForm=Object.assign(drvBlank(),{_new:true});curView='drvform';render();}
+function editDriver(id){const d=data.drivers.find(x=>x.id===id);if(!d)return;drvForm=Object.assign(drvBlank(d.id),d,{_new:false});curView='drvform';render();}
+function dvSet(k,v){drvForm[k]=v;}
+function cancelDriver(){drvForm=null;curView='drivers';render();}
+function saveDriver(){if(!drvForm.name.trim()){alert('Enter the staff name.');return;}
+  const rec=Object.assign({},drvForm);delete rec._new;rec.name=rec.name.trim();rec.annualEnt=parseFloat(rec.annualEnt)||0;
+  const idx=data.drivers.findIndex(x=>x.id===rec.id);if(idx>=0)data.drivers[idx]=rec;else data.drivers.push(rec);
+  drvForm=null;curView='drivers';save();}
 function toggleDriver(id){const d=data.drivers.find(x=>x.id===id);if(d){d.active=(d.active===false);save();}}
 function delDriver(id){if(!confirm('Delete this driver?'))return;data.drivers=data.drivers.filter(x=>x.id!==id);save();}
 function newRoute(){const n=prompt('Route name (e.g. Miri -> KK):');if(!n||!n.trim())return;const r=prompt('Fee per trip (RM):','0');data.payRoutes.push({id:'R'+Date.now(),name:n.trim(),rate:parseFloat(r)||0});save();}
@@ -914,10 +924,11 @@ let payRun={driver:'',period:new Date().toISOString().slice(0,7),allowance:0,adv
 function prSet(k,v){payRun[k]=(k==='driver'||k==='period'||k==='note')?v:(parseFloat(v)||0);render();}
 function prTrips(){if(!payRun.driver||!payRun.period)return [];return data.trips.filter(t=>t.driver===payRun.driver&&(t.date||'').slice(0,7)===payRun.period);}
 function prServiceFee(){return prTrips().reduce((s,t)=>s+(t.rate||0),0);}
-function prNet(){return prServiceFee()+(payRun.allowance||0)-(payRun.advance||0)-(payRun.deduction||0);}
+function prOT(){return (payRun.driver&&payRun.period)?otForPeriod(payRun.driver,payRun.period):0;}
+function prNet(){return prServiceFee()+prOT()+(payRun.allowance||0)-(payRun.advance||0)-(payRun.deduction||0);}
 function generatePayslip(){if(!payRun.driver){alert('Pick a driver.');return;}const trips=prTrips();if(!trips.length&&!confirm('No trips found for this period. Continue anyway?'))return;
-  const fee=prServiceFee();const net=prNet();
-  const rec={no:'PAY.DHE.'+YR+'.'+pad3(data.company.nextPay),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
+  const fee=prServiceFee();const ot=prOT();const net=prNet();
+  const rec={no:'PAY.DHE.'+YR+'.'+pad3(data.company.nextPay),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,ot:ot,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
   data.payslips.push(rec);data.company.nextPay++;save();printPayslip(rec.no);payRun={driver:'',period:payRun.period,allowance:0,advance:0,deduction:0,employerStat:0,note:''};}
 function delPayslip(no){if(!confirm('Delete payslip '+no+'?'))return;data.payslips=data.payslips.filter(x=>x.no!==no);save();}
 function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
@@ -925,6 +936,7 @@ function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
   <div class="billto"><div><div class="lab">Pay To (Driver)</div><div class="v">${esc(p.driver)}</div></div><div><div class="lab">Trips</div><div class="v">${p.tripsCount} trip(s)</div></div></div>
   <table class="items"><thead><tr><th>Description</th><th style="text-align:right">Amount (RM)</th></tr></thead><tbody>
     <tr><td>Service Fee (${p.tripsCount} trips)</td><td style="text-align:right">${p.serviceFee.toFixed(2)}</td></tr>
+    ${p.ot?`<tr><td>Overtime</td><td style="text-align:right">${p.ot.toFixed(2)}</td></tr>`:''}
     ${p.allowance?`<tr><td>Allowance</td><td style="text-align:right">${p.allowance.toFixed(2)}</td></tr>`:''}
     ${p.advance?`<tr><td>Less: Advance</td><td style="text-align:right">(${p.advance.toFixed(2)})</td></tr>`:''}
     ${p.deduction?`<tr><td>Less: Statutory EPF/SOCSO/EIS (per HR.my)</td><td style="text-align:right">(${p.deduction.toFixed(2)})</td></tr>`:''}
@@ -958,6 +970,24 @@ function seedPresetRates(){const C=[
   C.forEach(([name,m3,kg])=>{[['per m³',m3],['per kg',kg]].forEach(([unit,rate])=>{
     if(!data.rateCard.some(r=>r.name===name&&r.unit===unit)){data.rateCard.push({id:'RC'+Date.now()+(seq++),name:name,unit:unit,rate:rate});added++;}});});
   save();alert('Added '+added+' preset rate(s). '+(32-added>0?(32-added)+' already existed (skipped).':''));}
+/* ===== Leave + Overtime ===== */
+let lvForm={driver:'',type:'Annual',from:todayISO(),to:todayISO(),days:1,reason:'',status:'Approved'};
+function lvSet(k,v){lvForm[k]=(k==='days')?(parseFloat(v)||0):v;render();}
+function addLeave(){if(!lvForm.driver){alert('Pick a staff.');return;}if(!lvForm.from||!lvForm.to){alert('Pick the dates.');return;}
+  data.leaves.push({id:'L'+Date.now(),driver:lvForm.driver,type:lvForm.type,from:lvForm.from,to:lvForm.to,days:lvForm.days||0,reason:lvForm.reason,status:lvForm.status});
+  lvForm={driver:lvForm.driver,type:'Annual',from:todayISO(),to:todayISO(),days:1,reason:'',status:'Approved'};save();}
+function delLeave(id){if(!confirm('Delete this leave record?'))return;data.leaves=data.leaves.filter(x=>x.id!==id);save();}
+function leaveTaken(driver,type,year){return data.leaves.filter(l=>l.driver===driver&&l.type===type&&l.status==='Approved'&&(l.from||'').slice(0,4)===String(year)).reduce((s,l)=>s+(l.days||0),0);}
+let otForm={driver:'',date:todayISO(),hours:0,rate:0,note:''};
+function otSet(k,v){otForm[k]=(k==='hours'||k==='rate')?(parseFloat(v)||0):v;render();}
+function addOT(){if(!otForm.driver){alert('Pick a staff.');return;}
+  const amt=(otForm.hours||0)*(otForm.rate||0);
+  data.otRecords.push({id:'O'+Date.now(),driver:otForm.driver,date:otForm.date,hours:otForm.hours||0,rate:otForm.rate||0,amount:amt,note:otForm.note});
+  otForm={driver:otForm.driver,date:otForm.date,hours:0,rate:otForm.rate,note:''};save();}
+function delOT(id){if(!confirm('Delete this OT record?'))return;data.otRecords=data.otRecords.filter(x=>x.id!==id);save();}
+function otForPeriod(driver,period){return data.otRecords.filter(o=>o.driver===driver&&(o.date||'').slice(0,7)===period).reduce((s,o)=>s+(o.amount||0),0);}
+function go(v){curView=v;const a=document.querySelector('#nav a[data-view="'+v+'"]');if(a){document.querySelectorAll('#nav a').forEach(x=>x.classList.toggle('active',x===a));}render();}
+function dismissSetup(){data.company.setupHidden=true;save();}
 function render(){
   const c=data.company;document.getElementById('coName').textContent=c.name;const el=document.getElementById('content');
   const missing=[];if(!c.addr)missing.push('address');if(!c.bank)missing.push('bank details');if(c.sstreg==='yes'&&!c.sstno)missing.push('SST no.');
@@ -979,7 +1009,7 @@ function render(){
     const qP=quo365.filter(q=>q.status==='pending'),qL=quo365.filter(q=>q.status==='lost'),qW=quo365.filter(q=>q.status==='won');
     const totDeal=sum(quo365),qbTot=sum(qP)+sum(qL)+sum(qW)||1;
     const billsWin=data.bills.filter(b=>b.status!=='void'&&inWin(b.date,pf,pt));const billsCost=sum(billsWin);
-    const payWin=data.payslips.filter(p=>inWin(p.date,pf,pt));const payCost=payWin.reduce((s,p)=>s+(p.serviceFee||0)+(p.allowance||0)+(p.employerStat||0),0);
+    const payWin=data.payslips.filter(p=>inWin(p.date,pf,pt));const payCost=payWin.reduce((s,p)=>s+(p.serviceFee||0)+(p.ot||0)+(p.allowance||0)+(p.employerStat||0),0);
     const income=sum(salesInv);const expCost=sum(exp.filter(e=>inWin(e.date,pf,pt)),x=>x.amount);const costTot=expCost+billsCost+payCost;const net=income-costTot;
     const bill365=data.bills.filter(b=>b.status!=='void'&&new Date(b.date)>=y365);
     const bU=bill365.filter(b=>billStat(b)==='unpaid'),bP=bill365.filter(b=>billStat(b)==='partial'),bF=bill365.filter(b=>billStat(b)==='paid');
@@ -989,15 +1019,33 @@ function render(){
     const cfLabels=[],cfInc=[],cfExp=[];
     for(let ci=11;ci>=0;ci--){const d=new Date(today.getFullYear(),today.getMonth()-ci,1);cfLabels.push(MONTHS[d.getMonth()][0]);
       const mi=sum(activeInv.filter(x=>{const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}));
-      const me=sum(exp.filter(x=>{const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}),x=>x.amount)+sum(data.bills.filter(x=>{if(x.status==='void')return false;const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}))+data.payslips.filter(x=>{const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}).reduce((s,p)=>s+(p.serviceFee||0)+(p.allowance||0)+(p.employerStat||0),0);
+      const me=sum(exp.filter(x=>{const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}),x=>x.amount)+sum(data.bills.filter(x=>{if(x.status==='void')return false;const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}))+data.payslips.filter(x=>{const dd=new Date(x.date);return dd.getFullYear()===d.getFullYear()&&dd.getMonth()===d.getMonth();}).reduce((s,p)=>s+(p.serviceFee||0)+(p.ot||0)+(p.allowance||0)+(p.employerStat||0),0);
       cfInc.push(mi);cfExp.push(me);}
     const catMap={};
     exp.filter(e=>new Date(e.date)>=y365).forEach(e=>{const k=e.cat||'Others';catMap[k]=(catMap[k]||0)+e.amount;});
     data.bills.filter(b=>b.status!=='void'&&new Date(b.date)>=y365).forEach(b=>{const k=b.category||'Others';catMap[k]=(catMap[k]||0)+(b.total||0);});
-    data.payslips.filter(p=>new Date(p.date)>=y365).forEach(p=>{catMap['Driver Payroll']=(catMap['Driver Payroll']||0)+(p.serviceFee||0)+(p.allowance||0)+(p.employerStat||0);});
+    data.payslips.filter(p=>new Date(p.date)>=y365).forEach(p=>{catMap['Driver Payroll']=(catMap['Driver Payroll']||0)+(p.serviceFee||0)+(p.ot||0)+(p.allowance||0)+(p.employerStat||0);});
     const CATCOLORS=['#3644DB','#7C3AED','#2563EB','#0F8A54','#B7791F','#DC2626','#0EA5E9','#94A3B8','#F59E0B'];
     const catEntries=Object.entries(catMap).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).map(([label,value],i)=>({label,value,color:CATCOLORS[i%CATCOLORS.length]}));
-    el.innerHTML=`<div class="page-head"><h1>Dashboard</h1></div>${warnHtml}
+    const setup=[
+      {label:'Complete company settings (address & bank)',done:!!(c.addr&&c.bank),view:'settings',btn:'Fill'},
+      {label:'Add your staff / drivers',done:(data.drivers||[]).length>0,view:'drivers',btn:'Add'},
+      {label:'Set route rates for trips',done:(data.payRoutes||[]).length>0,view:'payroutes',btn:'Set'},
+      {label:'Set up your rate card',done:(data.rateCard||[]).length>0,view:'ratecard',btn:'Set'},
+      {label:'Create your first quotation or invoice',done:((data.quotations||[]).length+(data.invoices||[]).length)>0,view:'invoice',btn:'Create'}
+    ];
+    const dn=setup.filter(x=>x.done).length,tot=setup.length;const showSetup=(dn<tot)&&!c.setupHidden;
+    const setupHtml=showSetup?`<div class="panel" style="padding:18px 20px;margin-bottom:16px;border:1px solid var(--green)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div><div style="font-size:17px;font-weight:700;color:var(--slate)">Getting started</div><div class="desc">Finish these to set your system up. ${dn} of ${tot} done.</div></div>
+        <button class="mini" onclick="dismissSetup()">Hide</button></div>
+      <div style="height:6px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:${Math.round(dn/tot*100)}%;background:var(--green)"></div></div>
+      ${setup.map(st=>`<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line)">
+        <span style="width:22px;height:22px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:13px;${st.done?'background:var(--ok);color:#fff':'border:2px solid var(--line);color:var(--muted)'}">${st.done?'✓':''}</span>
+        <span style="flex:1;font-size:15px;${st.done?'color:var(--muted);text-decoration:line-through':'color:var(--slate);font-weight:500'}">${st.label}</span>
+        ${st.done?'<span class="pill ready">Done</span>':`<button class="btn" style="padding:6px 14px" onclick="go('${st.view}')">${st.btn}</button>`}
+      </div>`).join('')}</div>`:'';
+    el.innerHTML=`<div class="page-head"><h1>Dashboard</h1></div>${showSetup?'':warnHtml}${setupHtml}
       <div class="grid">
         <div class="card dcard"><div class="k"><span class="kt">${kic('sales','blue')}SALES</span>${psel()}</div><div class="big blue">${RM(salesTot)}</div><div class="note">${fmtD(pf)} - ${fmtD(pt)}</div>${salesLine(pf,pt,salesInv)}</div>
         <div class="card dcard"><div class="k"><span class="kt">${kic('inv','blue')}INVOICES</span><span class="sub">Last 365 days</span></div><div class="cnt"><b>${inv365.length}</b> Invoices</div>
@@ -1431,7 +1479,7 @@ function render(){
     cn.forEach(x=>{if(x.date>=pf&&x.date<=pt)totCn+=x.total;if(new Date(x.date).getFullYear()===yr)cnM[new Date(x.date).getMonth()]+=x.total;});
     exp.forEach(e=>{if(e.date>=pf&&e.date<=pt)totExp+=e.amount;});
     data.bills.forEach(b=>{if(b.status!=='void'&&b.date>=pf&&b.date<=pt)totExp+=(b.total||0);});
-    data.payslips.forEach(p=>{if(p.date>=pf&&p.date<=pt)totExp+=(p.serviceFee||0)+(p.allowance||0)+(p.employerStat||0);});
+    data.payslips.forEach(p=>{if(p.date>=pf&&p.date<=pt)totExp+=(p.serviceFee||0)+(p.ot||0)+(p.allowance||0)+(p.employerStat||0);});
     const cell=v=>v?(v<0?'('+Math.abs(v).toFixed(0)+')':v.toFixed(0)):'-';
     const custList=[...new Set([...data.invoices.map(i=>i.cust),...data.contacts.map(c=>c.name)].filter(Boolean))].sort();
     const stmt=soa.cust?buildStatement(soa.cust,soa.from,soa.to):null;
@@ -1485,11 +1533,81 @@ function render(){
     return;}
 
   if(curView==='drivers'){
-    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Drivers</h1><div class="desc">Driver roster for trip-based service fee.</div></div><button class="btn" onclick="newDriver()">＋ New</button></div>
-      <div class="panel"><table><thead><tr><th>Driver</th><th>Status</th><th style="text-align:right">Action</th></tr></thead><tbody>
-      ${data.drivers.map(d=>`<tr><td><b>${esc(d.name)}</b></td><td><span class="pill ${d.active!==false?'ready':'void'}">${d.active!==false?'Active':'Inactive'}</span></td>
-        <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editDriver('${d.id}')">Rename</button><button class="mini" onclick="toggleDriver('${d.id}')">${d.active!==false?'Deactivate':'Activate'}</button><button class="mini" onclick="delDriver('${d.id}')">Delete</button></td></tr>`).join('')}
-      </tbody></table>${data.drivers.length?'':'<div class="empty">📭<br>No drivers yet. Click “New”.</div>'}</div>`;
+    const yr=new Date().getFullYear();
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Staff</h1><div class="desc">Employee records, roster and annual leave balance.</div></div><button class="btn" onclick="newDriver()">＋ New Staff</button></div>
+      <div class="panel"><table><thead><tr><th>Name</th><th>Position</th><th>Contact</th><th>Joined</th><th class="amt">Annual Leave Left</th><th>Status</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${data.drivers.map(d=>{const ent=(d.annualEnt==null?8:d.annualEnt);const taken=leaveTaken(d.name,'Annual',yr);const left=ent-taken;return `<tr><td><b>${esc(d.name)}</b></td><td>${esc(d.position||'-')}</td><td>${esc(d.phone||'-')}</td><td>${d.startDate||'-'}</td><td class="amt">${left} / ${ent}</td>
+        <td><span class="pill ${d.active!==false?'ready':'void'}">${d.active!==false?'Active':'Inactive'}</span></td>
+        <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editDriver('${d.id}')">Edit</button><button class="mini" onclick="toggleDriver('${d.id}')">${d.active!==false?'Deactivate':'Activate'}</button><button class="mini" onclick="delDriver('${d.id}')">Delete</button></td></tr>`;}).join('')}
+      </tbody></table>${data.drivers.length?'':'<div class="empty">📭<br>No staff yet. Click “New Staff”.</div>'}</div>`;
+    return;}
+
+  if(curView==='drvform'){
+    const f=drvForm;
+    el.innerHTML=`<div class="page-head"><div style="display:flex;align-items:center;gap:10px"><span style="cursor:pointer;font-size:20px" onclick="cancelDriver()">←</span><h1>${f._new?'New':'Edit'} Staff</h1></div></div>
+      <div class="qform">
+        <div class="qsec"><div class="qsec-grid"><div class="h">Personal<p>Identity and contact.</p></div>
+          <div><div class="qf"><label>Full name <span class="req">*</span></label><input value="${esc(f.name)}" oninput="dvSet('name',this.value)"></div>
+            <div class="qf"><label>NRIC / IC no.</label><input value="${esc(f.nric)}" oninput="dvSet('nric',this.value)" placeholder="e.g. 900101-12-5678"></div>
+            <div class="qf"><label>Phone</label><input value="${esc(f.phone)}" oninput="dvSet('phone',this.value)"></div>
+            <div class="qf"><label>Email</label><input value="${esc(f.email)}" oninput="dvSet('email',this.value)"></div></div>
+          <div><div class="qf"><label>Address</label><textarea oninput="dvSet('address',this.value)">${esc(f.address)}</textarea></div></div></div></div>
+        <div class="qsec"><div class="qsec-grid"><div class="h">Employment<p>Role and key dates.</p></div>
+          <div><div class="qf"><label>Position</label><input value="${esc(f.position)}" oninput="dvSet('position',this.value)"></div>
+            <div class="qf"><label>Start work date</label><input type="date" value="${f.startDate||''}" onchange="dvSet('startDate',this.value)"></div>
+            <div class="qf"><label>Confirmation date</label><input type="date" value="${f.confirmDate||''}" onchange="dvSet('confirmDate',this.value)"></div></div>
+          <div><div class="qf"><label>Annual leave entitlement (days/year)</label><input type="number" step="1" value="${f.annualEnt==null?8:f.annualEnt}" onchange="dvSet('annualEnt',this.value)"></div>
+            <div class="qf"><label>Driving license no.</label><input value="${esc(f.licenseNo)}" oninput="dvSet('licenseNo',this.value)"></div>
+            <div class="qf"><label>License expiry</label><input type="date" value="${f.licenseExpiry||''}" onchange="dvSet('licenseExpiry',this.value)"></div></div></div></div>
+        <div class="qsec"><div class="qsec-grid"><div class="h">Emergency &amp; notes<p>Who to call, extra notes.</p></div>
+          <div><div class="qf"><label>Emergency contact name</label><input value="${esc(f.emgName)}" oninput="dvSet('emgName',this.value)"></div>
+            <div class="qf"><label>Emergency contact phone</label><input value="${esc(f.emgPhone)}" oninput="dvSet('emgPhone',this.value)"></div>
+            <div class="qf"><label>Status</label><div class="statusseg"><button class="${f.active!==false?'on':''}" onclick="dvSet('active',true);render()">Active</button><button class="${f.active===false?'on':''}" onclick="dvSet('active',false);render()">Inactive</button></div></div></div>
+          <div><div class="qf"><label>Notes</label><textarea oninput="dvSet('notes',this.value)">${esc(f.notes)}</textarea></div></div></div></div>
+        <div class="qbar"><button class="btn ghost" onclick="cancelDriver()">Cancel</button><button class="btn" onclick="saveDriver()">Save Staff</button></div>
+      </div>`;
+    return;}
+
+  if(curView==='leave'){
+    const yr=new Date().getFullYear();const f=lvForm;
+    const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${f.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
+    const list=data.leaves.slice().sort((a,b)=>(a.from<b.from?1:-1));
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Leave</h1><div class="desc">Record staff leave; annual balance tracked per year.</div></div></div>
+      <div class="panel" style="padding:16px"><div class="filtergrid" style="grid-template-columns:1.1fr 0.9fr 1fr 1fr auto 1.3fr auto;gap:10px;align-items:end">
+        <div class="fld"><label>Staff</label><select onchange="lvSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
+        <div class="fld"><label>Type</label><select onchange="lvSet('type',this.value)">${['Annual','Sick','Emergency','Unpaid','Other'].map(t=>`<option ${f.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+        <div class="fld"><label>From</label><input type="date" value="${f.from}" onchange="lvSet('from',this.value)"></div>
+        <div class="fld"><label>To</label><input type="date" value="${f.to}" onchange="lvSet('to',this.value)"></div>
+        <div class="fld"><label>Days</label><input type="number" step="0.5" value="${f.days}" onchange="lvSet('days',this.value)" style="width:70px"></div>
+        <div class="fld"><label>Reason (opt)</label><input value="${esc(f.reason)}" onchange="lvSet('reason',this.value)"></div>
+        <div><button class="btn" onclick="addLeave()">＋ Add</button></div>
+      </div>${data.drivers.length?'':'<p class="note" style="margin-top:8px">Add staff first (Drivers page).</p>'}</div>
+      ${data.drivers.filter(d=>d.active!==false).length?`<div class="panel"><h2 style="padding:14px 18px 0">Annual Leave Balance ${yr}</h2><table><thead><tr><th>Staff</th><th class="amt">Entitled</th><th class="amt">Taken</th><th class="amt">Left</th></tr></thead><tbody>
+        ${data.drivers.filter(d=>d.active!==false).map(d=>{const ent=(d.annualEnt==null?8:d.annualEnt);const tk=leaveTaken(d.name,'Annual',yr);return `<tr><td><b>${esc(d.name)}</b></td><td class="amt">${ent}</td><td class="amt">${tk}</td><td class="amt"><b style="color:${(ent-tk)<0?'var(--red)':'var(--ok)'}">${ent-tk}</b></td></tr>`;}).join('')}
+        </tbody></table></div>`:''}
+      <div class="panel"><h2 style="padding:14px 18px 0">Leave Records</h2><table><thead><tr><th>Staff</th><th>Type</th><th>From</th><th>To</th><th class="amt">Days</th><th>Reason</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${list.map(l=>`<tr><td>${esc(l.driver)}</td><td>${esc(l.type)}</td><td>${l.from}</td><td>${l.to}</td><td class="amt">${l.days}</td><td>${esc(l.reason||'-')}</td>
+        <td style="text-align:right"><button class="mini" onclick="delLeave('${l.id}')">Delete</button></td></tr>`).join('')}
+      </tbody></table>${list.length?'':'<div class="empty">📭<br>No leave records yet.</div>'}</div>`;
+    return;}
+
+  if(curView==='ot'){
+    const f=otForm;
+    const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${f.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
+    const list=data.otRecords.slice().sort((a,b)=>(a.date<b.date?1:-1));
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Overtime</h1><div class="desc">Log OT; the month total flows into that staff's Pay Run.</div></div></div>
+      <div class="panel" style="padding:16px"><div class="filtergrid" style="grid-template-columns:1.2fr auto auto auto 1.4fr auto;gap:10px;align-items:end">
+        <div class="fld"><label>Staff</label><select onchange="otSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
+        <div class="fld"><label>Date</label><input type="date" value="${f.date}" onchange="otSet('date',this.value)"></div>
+        <div class="fld"><label>Hours</label><input type="number" step="0.5" value="${f.hours||''}" onchange="otSet('hours',this.value)" style="width:80px"></div>
+        <div class="fld"><label>Rate/hr (RM)</label><input type="number" step="0.01" value="${f.rate||''}" onchange="otSet('rate',this.value)" style="width:100px"></div>
+        <div class="fld"><label>Note (opt)</label><input value="${esc(f.note)}" onchange="otSet('note',this.value)"></div>
+        <div><button class="btn" onclick="addOT()">＋ Add</button></div>
+      </div><div class="note" style="margin-top:8px">Amount = hours × rate.${f.hours&&f.rate?(' This entry: '+RM((f.hours||0)*(f.rate||0))):''}</div></div>
+      <div class="panel"><h2 style="padding:14px 18px 0">OT Records</h2><table><thead><tr><th>Date</th><th>Staff</th><th class="amt">Hours</th><th class="amt">Rate</th><th class="amt">Amount</th><th>Note</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${list.map(o=>`<tr><td>${o.date}</td><td>${esc(o.driver)}</td><td class="amt">${o.hours}</td><td class="amt">${RM(o.rate)}</td><td class="amt"><b>${RM(o.amount)}</b></td><td>${esc(o.note||'-')}</td>
+        <td style="text-align:right"><button class="mini" onclick="delOT('${o.id}')">Delete</button></td></tr>`).join('')}
+      </tbody></table>${list.length?'':'<div class="empty">📭<br>No OT records yet.</div>'}</div>`;
     return;}
 
   if(curView==='payroutes'){
@@ -1525,7 +1643,7 @@ function render(){
 
   if(curView==='payrun'){
     const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${payRun.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
-    const trips=prTrips();const fee=prServiceFee();const net=prNet();const cost=fee+(payRun.allowance||0)+(payRun.employerStat||0);
+    const trips=prTrips();const fee=prServiceFee();const ot=prOT();const net=prNet();const cost=fee+ot+(payRun.allowance||0)+(payRun.employerStat||0);
     el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Pay Run</h1><div class="desc">Monthly driver settlement → payment voucher.</div></div></div>
       <div class="panel" style="padding:18px">
         <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:14px">
@@ -1535,6 +1653,7 @@ function render(){
         ${payRun.driver?`<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px">
           <div class="row2"><span class="lab">Trips this period</span><b>${trips.length}</b></div>
           <div class="row2"><span class="lab">Service Fee (${trips.length} trips × route rates)</span><b>${RM(fee)}</b></div>
+          ${ot?`<div class="row2"><span class="lab">Overtime this period</span><b>${RM(ot)}</b></div>`:''}
           <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
             <div class="fld"><label>Allowance (+)</label><input type="number" step="0.01" value="${payRun.allowance||''}" onchange="prSet('allowance',this.value)"></div>
             <div class="fld"><label>Advance (−)</label><input type="number" step="0.01" value="${payRun.advance||''}" onchange="prSet('advance',this.value)"></div>
