@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.29</title>
+<title>DHExpress v3.32</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -245,7 +245,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.29</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.32</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="navgroup" data-grp="Sales"><div class="grp" onclick="toggleGroup('Sales')"><span>Sales</span><span class="chev">▾</span></div>
@@ -326,7 +326,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.29';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.32';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -901,7 +901,7 @@ function listActions(html){return `<td style="text-align:right;white-space:nowra
 
 /* ===== Payroll (driver trip service fee) ===== */
 let drvForm=null;
-function drvBlank(id){return{id:id||('D'+Date.now()),name:'',active:true,nric:'',phone:'',email:'',address:'',position:'Driver',startDate:'',confirmDate:'',licenseNo:'',licenseExpiry:'',emgName:'',emgPhone:'',annualEnt:8,basicSalary:0,dailyRate:0,earnsTrips:true,commRate:0,notes:''};}
+function drvBlank(id){return{id:id||('D'+Date.now()),name:'',active:true,nric:'',phone:'',email:'',address:'',position:'Driver',startDate:'',confirmDate:'',licenseNo:'',licenseExpiry:'',emgName:'',emgPhone:'',annualEnt:8,basicSalary:0,dailyRate:0,earnsTrips:true,commRate:0,bank:'',notes:''};}
 function payLabel(d){const p=[];if((+d.basicSalary)>0)p.push('Monthly '+RM(d.basicSalary));if((+d.dailyRate)>0)p.push('Daily '+RM(d.dailyRate));if(d.earnsTrips!==false)p.push('Per-trip');if((+d.commRate)>0)p.push('+Comm '+RM(d.commRate)+'/unit');return p.length?p.join(' · '):'—';}
 function newDriver(){drvForm=Object.assign(drvBlank(),{_new:true});curView='drvform';render();}
 function editDriver(id){const d=data.drivers.find(x=>x.id===id);if(!d)return;drvForm=Object.assign(drvBlank(d.id),d,{_new:false});curView='drvform';render();}
@@ -928,8 +928,9 @@ function addTrip(){if(!tripForm.driver){alert('Pick a driver.');return;}if(!trip
 function delTrip(id){if(!confirm('Delete this trip?'))return;data.trips=data.trips.filter(x=>x.id!==id);save();}
 function tfSet(k,v){tripFilter[k]=v;render();}
 function filteredTrips(){let l=data.trips.slice();const f=tripFilter;if(f.from)l=l.filter(t=>t.date>=f.from);if(f.to)l=l.filter(t=>t.date<=f.to);if(f.driver)l=l.filter(t=>t.driver===f.driver);return l.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);}
-let payRun={driver:'',period:new Date().toISOString().slice(0,7),allowance:0,advance:0,deduction:0,employerStat:0,workDates:[],note:''};
-function prSet(k,v){payRun[k]=(k==='driver'||k==='period'||k==='note')?v:(parseFloat(v)||0);render();}
+let payRun={driver:'',period:new Date().toISOString().slice(0,7),allowance:0,advance:0,deduction:0,employerStat:0,workDates:[],otHours:0,otRate:0,note:''};
+function prSet(k,v){payRun[k]=(k==='driver'||k==='period'||k==='note')?v:(parseFloat(v)||0);if(k==='driver'){const s=data.drivers.find(d=>d.name===v)||{};const hr=s.basicSalary?((+s.basicSalary)/26/8):(s.dailyRate?((+s.dailyRate)/8):0);payRun.otRate=hr?Math.round(hr*100)/100:0;payRun.otHours=0;}render();}
+function prAddOT(){if(!payRun.driver){alert('Pick an employee.');return;}const hrs=payRun.otHours||0;if(hrs<=0){alert('Enter OT hours.');return;}const rate=payRun.otRate||0;const period=payRun.period||todayISO().slice(0,7);data.otRecords.push({id:'O'+Date.now(),driver:payRun.driver,date:period+'-15',hours:hrs,rate:rate,amount:hrs*rate*1.5,note:'Added in Pay Run'});payRun.otHours=0;save();}
 function prTrips(){if(!payRun.driver||!payRun.period)return [];return data.trips.filter(t=>t.driver===payRun.driver&&(t.date||'').slice(0,7)===payRun.period);}
 function prStaff(){return data.drivers.find(d=>d.name===payRun.driver)||{};}
 function prBasic(){const s=prStaff();return (+s.basicSalary)||0;}
@@ -953,28 +954,35 @@ function delCommission(id){if(!confirm('Delete this commission record?'))return;
 function prNet(){return prServiceFee()+prMeal()+prOT()+(payRun.allowance||0)-(payRun.advance||0)-(payRun.deduction||0);}
 function generatePayslip(){if(!payRun.driver){alert('Pick an employee.');return;}const trips=prTrips();const fee=prServiceFee();const meal=prMeal();const ot=prOT();const net=prNet();
   if(fee<=0&&meal<=0&&ot<=0&&!confirm('No earnings computed for this employee/period. Continue anyway?'))return;
-  const rec={no:'PAY.DHE.'+YR+'.'+pad3(data.company.nextPay),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,basic:prBasic(),daily:prDaily(),tripEarn:prTripsBase(),comm:prComm(),daysWorked:(payRun.workDates||[]).length,meal:meal,ot:ot,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
-  data.payslips.push(rec);data.company.nextPay++;save();printPayslip(rec.no);payRun={driver:'',period:payRun.period,allowance:0,advance:0,deduction:0,employerStat:0,workDates:[],note:''};}
+  const rec={no:'PV.DHE.'+YR+'.'+pad3(data.company.nextPV),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,basic:prBasic(),daily:prDaily(),tripEarn:prTripsBase(),comm:prComm(),daysWorked:(payRun.workDates||[]).length,meal:meal,ot:ot,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
+  data.payslips.push(rec);data.company.nextPV++;save();printPayslip(rec.no);payRun={driver:'',period:payRun.period,allowance:0,advance:0,deduction:0,employerStat:0,workDates:[],note:''};}
 function delPayslip(no){if(!confirm('Delete payslip '+no+'?'))return;data.payslips=data.payslips.filter(x=>x.no!==no);save();}
+function numToWords(n){n=Math.floor(n);if(n===0)return 'ZERO';const o=['','ONE','TWO','THREE','FOUR','FIVE','SIX','SEVEN','EIGHT','NINE','TEN','ELEVEN','TWELVE','THIRTEEN','FOURTEEN','FIFTEEN','SIXTEEN','SEVENTEEN','EIGHTEEN','NINETEEN'];const t=['','','TWENTY','THIRTY','FORTY','FIFTY','SIXTY','SEVENTY','EIGHTY','NINETY'];
+  function b(x){let s='';if(x>=100){s+=o[Math.floor(x/100)]+' HUNDRED';x%=100;if(x)s+=' ';}if(x>=20){s+=t[Math.floor(x/10)];x%=10;if(x)s+='-'+o[x];}else if(x>0)s+=o[x];return s;}
+  let out='';for(const [nm,v] of [['BILLION',1e9],['MILLION',1e6],['THOUSAND',1e3]]){if(n>=v){out+=b(Math.floor(n/v))+' '+nm+' ';n%=v;}}if(n>0)out+=b(n);return out.trim();}
+function amountWords(amt){const r=Math.floor(amt);const c=Math.round((amt-r)*100);let s='RINGGIT MALAYSIA : '+numToWords(r);if(c>0)s+=' AND '+numToWords(c)+' CENTS';return s+' ONLY';}
 function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
-  doPrint(`<div class="doc">${coHeader()}<div class="doctype"><div class="t">DRIVER PAYMENT VOUCHER</div><div class="m">No: <b>${esc(p.no)}</b><br>Date: ${p.date}<br>Period: ${esc(p.period)}</div></div></div>
-  <div class="billto"><div><div class="lab">Pay To (Employee)</div><div class="v">${esc(p.driver)}</div></div><div><div class="lab">Trips</div><div class="v">${p.tripsCount} trip(s)</div></div></div>
-  <table class="items"><thead><tr><th>Description</th><th style="text-align:right">Amount (RM)</th></tr></thead><tbody>
-    ${p.basic?`<tr><td>Basic salary</td><td style="text-align:right">${p.basic.toFixed(2)}</td></tr>`:''}
-    ${p.daily?`<tr><td>Daily pay (${p.daysWorked||0} days)</td><td style="text-align:right">${p.daily.toFixed(2)}</td></tr>`:''}
-    ${p.tripEarn?`<tr><td>Trip earnings (${p.tripsCount} trips)</td><td style="text-align:right">${p.tripEarn.toFixed(2)}</td></tr>`:''}
-    ${p.comm?`<tr><td>Commission (KK local delivery)</td><td style="text-align:right">${p.comm.toFixed(2)}</td></tr>`:''}
-    ${(!p.basic&&!p.daily&&!p.tripEarn&&!p.comm&&p.serviceFee)?`<tr><td>Service Fee (${p.tripsCount} trips)</td><td style="text-align:right">${p.serviceFee.toFixed(2)}</td></tr>`:''}
-    ${p.meal?`<tr><td>Meal allowance</td><td style="text-align:right">${p.meal.toFixed(2)}</td></tr>`:''}
-    ${p.ot?`<tr><td>Overtime (1.5×)</td><td style="text-align:right">${p.ot.toFixed(2)}</td></tr>`:''}
-    ${p.allowance?`<tr><td>Allowance</td><td style="text-align:right">${p.allowance.toFixed(2)}</td></tr>`:''}
-    ${p.advance?`<tr><td>Less: Advance</td><td style="text-align:right">(${p.advance.toFixed(2)})</td></tr>`:''}
-    ${p.deduction?`<tr><td>Less: Statutory EPF/SOCSO/EIS (per HR.my)</td><td style="text-align:right">(${p.deduction.toFixed(2)})</td></tr>`:''}
-  </tbody></table>
-  <div class="totals"><div class="tr grand"><span>Net Pay</span><span>${RM(p.net)}</span></div></div>
-  ${p.employerStat?`<div class="terms">Employer statutory (EPF/SOCSO/EIS) borne by the company, not deducted from the driver: ${RM(p.employerStat)}.</div>`:''}
+  const st=data.drivers.find(d=>d.name===p.driver)||{};
+  const rows=[];
+  if(p.basic)rows.push(['Basic salary',p.basic]);
+  if(p.daily)rows.push(['Daily pay ('+(p.daysWorked||0)+' days)',p.daily]);
+  if(p.tripEarn)rows.push(['Trip earnings ('+p.tripsCount+' trips)',p.tripEarn]);
+  if(p.comm)rows.push(['Commission (KK local delivery)',p.comm]);
+  if(!p.basic&&!p.daily&&!p.tripEarn&&!p.comm&&p.serviceFee)rows.push(['Service Fee ('+p.tripsCount+' trips)',p.serviceFee]);
+  if(p.meal)rows.push(['Meal allowance',p.meal]);
+  if(p.ot)rows.push(['Overtime (1.5x)',p.ot]);
+  if(p.allowance)rows.push(['Allowance',p.allowance]);
+  const ded=[];if(p.advance)ded.push(['Less: Advance',p.advance]);if(p.deduction)ded.push(['Less: Statutory EPF/SOCSO/EIS (per HR.my)',p.deduction]);
+  const body=rows.map(r=>`<tr><td>${r[0]}</td><td style="text-align:right">${r[1].toFixed(2)}</td></tr>`).join('')+ded.map(r=>`<tr><td>${r[0]}</td><td style="text-align:right">(${r[1].toFixed(2)})</td></tr>`).join('');
+  doPrint(`<div class="doc">${coHeader()}<div class="doctype"><div class="t">PAYMENT VOUCHER</div><div class="m">Voucher No: <b>${esc(p.no)}</b><br>Date: ${p.date}<br>Payment Method: Bank Transfer<br>Period: ${esc(p.period)}</div></div></div>
+  <div class="billto"><div><div class="lab">Pay To</div><div class="v">${esc(p.driver)}${st.address?'\n'+esc(st.address):''}</div></div>${st.bank?`<div><div class="lab">Bank Details</div><div class="v">${esc(st.bank)}</div></div>`:''}</div>
+  <table class="items"><thead><tr><th>Description</th><th style="text-align:right">Amount (RM)</th></tr></thead><tbody>${body}</tbody></table>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-top:12px">
+    <div style="font-weight:700;max-width:58%;line-height:1.4">${amountWords(p.net)}</div>
+    <div class="totals" style="margin:0;min-width:200px"><div class="tr grand"><span>Net Pay</span><span>${RM(p.net)}</span></div></div></div>
+  ${p.employerStat?`<div class="terms">Employer statutory (EPF/SOCSO/EIS) borne by the company, not deducted from the employee: ${RM(p.employerStat)}.</div>`:''}
   ${p.note?`<div class="terms"><b>Note:</b> ${esc(p.note)}</div>`:''}
-  <div class="sign"><div class="box">Received by (Employee)<br>Name / Date</div><div class="box">Approved by<br>For ${esc(data.company.name)}</div></div><div class="foot">Computer-generated payment voucher. Statutory figures per HR.my.</div></div>`);}
+  <div style="text-align:center;margin-top:16px;font-size:11px;color:#555">This is a computer generated payment voucher and requires no signature.</div></div>`);}
 /* ===== Rate Card + customer special rates ===== */
 function newRateItem(){const n=prompt('Rate item name (e.g. Miri to KK, LCL):');if(!n||!n.trim())return;const u=prompt('Unit (e.g. per m3, per kg, per trip):','');const r=prompt('Standard rate (RM):','0');data.rateCard.push({id:'RC'+Date.now(),name:n.trim(),unit:(u||'').trim(),rate:parseFloat(r)||0});save();}
 function editRateItem(id){const it=data.rateCard.find(x=>x.id===id);if(!it)return;const n=prompt('Name:',it.name);if(n===null)return;const u=prompt('Unit:',it.unit||'');if(u===null)return;const r=prompt('Standard rate (RM):',it.rate);if(r===null)return;it.name=n.trim()||it.name;it.unit=(u||'').trim();it.rate=parseFloat(r)||0;save();}
@@ -1586,7 +1594,7 @@ function render(){
             <div class="qf"><label>NRIC / IC no.</label><input value="${esc(f.nric)}" oninput="dvSet('nric',this.value)" placeholder="e.g. 900101-12-5678"></div>
             <div class="qf"><label>Phone</label><input value="${esc(f.phone)}" oninput="dvSet('phone',this.value)"></div>
             <div class="qf"><label>Email</label><input value="${esc(f.email)}" oninput="dvSet('email',this.value)"></div></div>
-          <div><div class="qf"><label>Address</label><textarea oninput="dvSet('address',this.value)">${esc(f.address)}</textarea></div></div></div></div>
+          <div><div class="qf"><label>Address</label><textarea oninput="dvSet('address',this.value)">${esc(f.address)}</textarea></div><div class="qf"><label>Bank account (for salary)</label><input value="${esc(f.bank)}" oninput="dvSet('bank',this.value)" placeholder="Bank name + account no."></div></div></div></div>
         <div class="qsec"><div class="qsec-grid"><div class="h">Employment<p>Role and key dates.</p></div>
           <div><div class="qf"><label>Position</label><input value="${esc(f.position)}" oninput="dvSet('position',this.value)"></div>
             <div class="qf"><label>Start work date</label><input type="date" value="${f.startDate||''}" onchange="dvSet('startDate',this.value)"></div>
@@ -1742,7 +1750,8 @@ function render(){
         ${(staff.earnsTrips!==false)?eRow('Trip earnings ('+trips.length+' trips: fee + loading + Limbang)',tripsB):''}
         ${comm?eRow('Commission — KK local delivery',comm):''}
         ${meal?eRow('Meal allowance (non-EPF)',meal):''}
-        ${ot?eRow('Overtime (1.5×)',ot):''}
+        ${ot?eRow('Overtime (1.5×) — logged this period',ot):''}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:10px"><span style="color:var(--slate)">Add overtime <span class="desc">${payRun.otRate?RM(payRun.otRate)+'/hr × 1.5':'enter rate/hr'}</span></span><span style="display:flex;gap:6px;align-items:center"><input type="number" step="0.5" value="${payRun.otHours||''}" onchange="prSet('otHours',this.value)" placeholder="hrs" style="width:64px;text-align:right"><input type="number" step="0.01" value="${payRun.otRate||''}" onchange="prSet('otRate',this.value)" placeholder="rate" style="width:84px;text-align:right"><button class="mini" onclick="prAddOT()">Add OT</button></span></div>
         ${iRow('Allowance (+)','allowance',payRun.allowance,'')}
         <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:2px solid var(--line);margin-top:2px"><span style="font-weight:700">Gross earnings</span><b style="font-size:16px">${RM(gross)}</b></div>
         ${sHead('Deductions')}
