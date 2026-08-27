@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.36</title>
+<title>DHExpress v3.37</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -245,7 +245,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.36</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.37</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="navgroup" data-grp="Sales"><div class="grp" onclick="toggleGroup('Sales')"><span>Sales</span><span class="chev">▾</span></div>
@@ -326,7 +326,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.36';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.37';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -993,6 +993,14 @@ function skillPdfPayslip(no,btn){
   if(st.bank)spec.payee_bank={bank:st.bank,account_name:p.driver,account_no:''};
   fetchSkillPdf(spec,btn);
 }
+function skillPdfSupplier(billNo,vno,btn){
+  const b=data.bills.find(x=>x.no===billNo);if(!b)return;
+  const rec=(b.payments||[]).find(x=>x.no===vno)||(b.payments||[])[(b.payments||[]).length-1];if(!rec)return;
+  const payee=[b.supplier].concat((b.supAddr||'').split('\n').filter(Boolean));
+  const items=[{date:fmtLongDate(rec.date),ref:b.ref||'',description:'Payment against Bill '+b.no+(b.ref?' (Supplier Inv '+b.ref+')':''),amount:rec.amount}];
+  const spec={doc_type:'payment_voucher',mode:'supplier',number:rec.no,date:fmtLongDate(rec.date),payment_method:rec.method||'Bank Transfer',payee:payee,items:items};
+  fetchSkillPdf(spec,btn);
+}
 function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
   const st=data.drivers.find(d=>d.name===p.driver)||{};
   const rows=[];
@@ -1133,7 +1141,7 @@ function render(){
           <div class="tu">${RM(totDeal)} <span class="sub">Total Deal</span></div>
           <div class="split"><div><b>${RM(sum(qW))}</b><span class="lab">Success</span></div><div style="text-align:right"><b>${RM(sum(qL))}</b><span class="lab">Closed</span></div></div></div>
         <div class="card dcard"><div class="k"><span class="kt">${kic('pnl','green')}PROFIT AND LOSS</span>${psel()}</div><div class="big blue" style="${net<0?'color:var(--red)':''}">${RM(net)}</div><div class="note">Net income for the period</div>
-          <div style="margin-top:6px"><div class="row2" style="margin-top:8px"><span class="lab">Income</span><b>${RM(income)}</b></div><div class="row2"><span class="lab">Expenses + Bills</span><b>${RM(costTot)}</b></div></div></div>
+          <div style="margin-top:6px"><div class="row2" style="margin-top:8px"><span class="lab">Income</span><b>${RM(income)}</b></div><div class="row2"><span class="lab">Expenses + Bills + Payroll</span><b>${RM(costTot)}</b></div></div></div>
         <div class="card dcard"><div class="k"><span class="kt">${kic('cost','amber')}COST AND EXPENSES</span>${psel()}</div><div class="big blue">${RM(costTot)}</div><div class="note">Expenses ${RM(expCost)} · Bills ${RM(billsCost)} · Payroll ${RM(payCost)}</div></div>
         <div class="card dcard"><div class="k"><span class="kt">${kic('bills','red')}SUPPLIER BILLS</span><span class="sub">Last 365 days</span></div><div class="cnt"><b>${bill365.length}</b> Bills</div>
           <div class="legend2"><span><i style="background:var(--blue)"></i>Unpaid</span><span><i style="background:var(--amber)"></i>Partial</span><span><i style="background:var(--ok)"></i>Paid</span></div>
@@ -1143,7 +1151,7 @@ function render(){
       </div>
       <div class="grid2">
         <div class="card"><div class="k" style="text-transform:none;font-size:15px;color:var(--slate);font-weight:600"><span class="kt">${kic('pnl','blue')}Cash Flow</span><span class="sub">Income vs Expenses · 12 mo</span></div>
-          <div class="legend2" style="margin-top:8px"><span><i style="background:var(--green)"></i>Income</span><span><i style="background:var(--red)"></i>Expenses + Bills</span></div>
+          <div class="legend2" style="margin-top:8px"><span><i style="background:var(--green)"></i>Income</span><span><i style="background:var(--red)"></i>Expenses + Bills + Payroll</span></div>
           ${cashFlowChart(cfLabels,cfInc,cfExp)}</div>
         <div class="card"><div class="k" style="text-transform:none;font-size:15px;color:var(--slate);font-weight:600"><span class="kt">${kic('cost','amber')}Expenses by Category</span><span class="sub">Last 365 days</span></div>
           ${catEntries.length?`<div style="display:flex;align-items:center;gap:14px;margin-top:12px"><div>${donutChart(catEntries)}</div><div style="flex:1;font-size:12px;min-width:0">${catEntries.map(e=>`<div style="display:flex;justify-content:space-between;gap:8px;margin:4px 0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><i style="width:9px;height:9px;border-radius:2px;display:inline-block;background:${e.color};margin-right:6px"></i>${esc(e.label)}</span><b>${RM(e.value)}</b></div>`).join('')}</div></div>`:`<div class="empty" style="padding:34px 0">No expenses to break down</div>`}</div>
@@ -1393,7 +1401,7 @@ function render(){
         <th class="sortable" onclick="spSortBy('sup')">Supplier ${arrow('sup')}</th><th>Against Bill</th><th>Method</th>
         <th class="sortable amt" onclick="spSortBy('amount')">Amount ${arrow('amount')}</th><th style="text-align:right">Action</th></tr></thead><tbody>
         ${list.map(r=>`<tr><td>${esc(r.no)}</td><td>${r.date}</td><td>${esc(r.supplier)}</td><td>${esc(r.billNo)}</td><td>${esc(r.method||'-')}</td><td class="amt">${RM(r.amount)}</td>
-          <td style="text-align:right"><button class="mini g" onclick="printPayVoucher('${r.billNo}','${r.no}')">Print</button></td></tr>`).join('')}
+          <td style="text-align:right"><button class="mini g" onclick="skillPdfSupplier('${r.billNo}','${r.no}',this)">Print</button></td></tr>`).join('')}
         </tbody></table>${list.length?'':'<div class="empty">📭<br>No supplier payments yet. Use “Pay” on a supplier bill.</div>'}</div>`;
     return;}
 
