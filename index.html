@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.33</title>
+<title>DHExpress v3.35</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -245,7 +245,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.33</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.35</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="navgroup" data-grp="Sales"><div class="grp" onclick="toggleGroup('Sales')"><span>Sales</span><span class="chev">▾</span></div>
@@ -326,7 +326,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.33';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.35';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -507,7 +507,7 @@ function payBill(no){const b=data.bills.find(x=>x.no===no);if(!b||b.status==='vo
   const out=billOut(b);const v=prompt('Amount paid for '+no+' (outstanding '+RM(out)+'):',out.toFixed(2));if(v===null)return;
   const amt=parseFloat(v)||0;if(amt<=0)return;
   const m=(prompt('Payment method — Cash / Bank Transfer / Cheque / DuitNow:','Bank Transfer')||'').trim();
-  b.paid=(b.paid||0)+amt;const vno='PV.DHE.'+YR+'.'+pad3(data.company.nextPV++);b.payments=b.payments||[];b.payments.push({no:vno,date:todayISO(),amount:amt,method:m});
+  b.paid=(b.paid||0)+amt;const vno='PV.DHE.'+YR+'.'+pad3(nextPVNo());b.payments=b.payments||[];b.payments.push({no:vno,date:todayISO(),amount:amt,method:m});
   b.status=(billOut(b)<=0.001?'paid':(b.paid>0?'partial':'unpaid'));save();printPayVoucher(no,vno);}
 function printPayVoucher(billNo,vno){const b=data.bills.find(x=>x.no===billNo);if(!b)return;const rec=(b.payments||[]).find(x=>x.no===vno)||b.payments[b.payments.length-1];
   doPrint(`<div class="doc">${coHeader()}<div class="doctype"><div class="t">PAYMENT VOUCHER</div><div class="m">Voucher No: <b>${esc(rec.no)}</b><br>Date: ${rec.date}<br>Payment Method: ${esc(rec.method||'Bank Transfer')}</div></div></div>
@@ -954,15 +954,45 @@ function addCommission(){if(!cmForm.driver){alert('Pick an employee.');return;}
   cmForm={driver:cmForm.driver,date:cmForm.date,units:1,note:''};save();}
 function delCommission(id){if(!confirm('Delete this commission record?'))return;data.commissions=data.commissions.filter(x=>x.id!==id);save();}
 function prNet(){return prServiceFee()+prMeal()+prOT()+(payRun.allowance||0)-(payRun.advance||0)-(payRun.deduction||0);}
+function nextPVNo(){let mx=0;const scan=no=>{const m=(''+no).match(/\.(\d{4})\.(\d+)$/);if(m&&m[1]===String(YR)){const n=parseInt(m[2]);if(n>mx)mx=n;}};(data.payslips||[]).forEach(p=>scan(p.no));(data.bills||[]).forEach(b=>(b.payments||[]).forEach(pm=>scan(pm.no)));return mx+1;}
 function generatePayslip(){if(!payRun.driver){alert('Pick an employee.');return;}const trips=prTrips();const fee=prServiceFee();const meal=prMeal();const ot=prOT();const net=prNet();
   if(fee<=0&&meal<=0&&ot<=0&&!confirm('No earnings computed for this employee/period. Continue anyway?'))return;
-  const rec={no:'PV.DHE.'+YR+'.'+pad3(data.company.nextPV),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,basic:prBasic(),daily:prDaily(),tripEarn:prTripsBase(),comm:prComm(),daysWorked:(payRun.workDates||[]).length,meal:meal,ot:ot,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
-  data.payslips.push(rec);data.company.nextPV++;save();printPayslip(rec.no);payRun={driver:'',period:payRun.period,allowance:0,advance:0,deduction:0,employerStat:0,workDates:[],note:''};}
+  const rec={no:'PV.DHE.'+YR+'.'+pad3(nextPVNo()),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,basic:prBasic(),daily:prDaily(),tripEarn:prTripsBase(),comm:prComm(),daysWorked:(payRun.workDates||[]).length,meal:meal,ot:ot,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
+  data.payslips.push(rec);save();printPayslip(rec.no);payRun={driver:'',period:payRun.period,allowance:0,advance:0,deduction:0,employerStat:0,workDates:[],note:''};}
 function delPayslip(no){if(!confirm('Delete payslip '+no+'?'))return;data.payslips=data.payslips.filter(x=>x.no!==no);save();}
 function numToWords(n){n=Math.floor(n);if(n===0)return 'ZERO';const o=['','ONE','TWO','THREE','FOUR','FIVE','SIX','SEVEN','EIGHT','NINE','TEN','ELEVEN','TWELVE','THIRTEEN','FOURTEEN','FIFTEEN','SIXTEEN','SEVENTEEN','EIGHTEEN','NINETEEN'];const t=['','','TWENTY','THIRTY','FORTY','FIFTY','SIXTY','SEVENTY','EIGHTY','NINETY'];
   function b(x){let s='';if(x>=100){s+=o[Math.floor(x/100)]+' HUNDRED';x%=100;if(x)s+=' ';}if(x>=20){s+=t[Math.floor(x/10)];x%=10;if(x)s+='-'+o[x];}else if(x>0)s+=o[x];return s;}
   let out='';for(const [nm,v] of [['BILLION',1e9],['MILLION',1e6],['THOUSAND',1e3]]){if(n>=v){out+=b(Math.floor(n/v))+' '+nm+' ';n%=v;}}if(n>0)out+=b(n);return out.trim();}
 function amountWords(amt){const r=Math.floor(amt);const c=Math.round((amt-r)*100);let s='RINGGIT MALAYSIA : '+numToWords(r);if(c>0)s+=' AND '+numToWords(c)+' CENTS';return s+' ONLY';}
+function _mName(m){return ['January','February','March','April','May','June','July','August','September','October','November','December'][(+m)-1]||'';}
+function monthLabel(ym){const a=(''+ym).split('-');return a[1]?(_mName(a[1])+' '+a[0]):ym;}
+function fmtLongDate(iso){const a=(''+iso).split('-');return a[2]?(a[2]+' '+_mName(a[1])+' '+a[0]):iso;}
+async function fetchSkillPdf(spec,btn){
+  const old=btn?btn.textContent:'';if(btn){btn.disabled=true;btn.textContent='…';}
+  try{
+    const r=await fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(spec)});
+    if(!r.ok){let t='';try{t=(await r.json()).detail||'';}catch(e){t=await r.text();}alert('Skill PDF service error:\n'+String(t).slice(0,300));return;}
+    const blob=await r.blob();const url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),60000);
+  }catch(e){alert('Could not reach the PDF service. Is dhx-pdf running?\n'+e);}
+  finally{if(btn){btn.disabled=false;btn.textContent=old;}}
+}
+function skillPdfPayslip(no,btn){
+  const p=data.payslips.find(x=>x.no===no);if(!p)return;
+  const st=data.drivers.find(d=>d.name===p.driver)||{};
+  const items=[];const add=(desc,amt)=>{if(amt)items.push({date:'',description:desc,rate:amt,trips:1});};
+  add('Basic salary (monthly)',p.basic);
+  add('Daily pay ('+(p.daysWorked||0)+' days)',p.daily);
+  add('Trip earnings ('+(p.tripsCount||0)+' trips)',p.tripEarn);
+  add('Commission (KK local delivery)',p.comm);
+  if(!p.basic&&!p.daily&&!p.tripEarn&&!p.comm&&p.serviceFee)add('Service Fee ('+(p.tripsCount||0)+' trips)',p.serviceFee);
+  add('Meal allowance',p.meal);
+  add('Overtime (1.5x)',p.ot);
+  add('Allowance',p.allowance);
+  const ded=[];if(p.deduction)ded.push({label:'Statutory EPF/SOCSO/EIS (per HR.my)',amount:p.deduction});if(p.advance)ded.push({label:'Salary Advance',amount:p.advance});
+  const spec={doc_type:'payment_voucher',mode:'driver',number:p.no,date:fmtLongDate(p.date),payment_method:'Bank Transfer',period:monthLabel(p.period),payee:[p.driver].concat(st.position?[st.position]:[]),items:items,deductions:ded};
+  if(st.bank)spec.payee_bank={bank:st.bank,account_name:p.driver,account_no:''};
+  fetchSkillPdf(spec,btn);
+}
 function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
   const st=data.drivers.find(d=>d.name===p.driver)||{};
   const rows=[];
@@ -1768,7 +1798,7 @@ function render(){
       </div>`:`<div class="panel"><div class="empty" style="padding:44px 0">👤<br>Pick an employee and period to build their payslip.</div></div>`}
       ${data.payslips.length?`<div class="panel"><h2 style="padding:14px 18px 0">Payslip History</h2><table><thead><tr><th>No</th><th>Date</th><th>Employee</th><th>Period</th><th class="amt">Trips</th><th class="amt">Net Pay</th><th style="text-align:right">Action</th></tr></thead><tbody>
         ${data.payslips.slice().reverse().map(p=>`<tr><td>${esc(p.no)}</td><td>${p.date}</td><td>${esc(p.driver)}</td><td>${esc(p.period)}</td><td class="amt">${p.tripsCount}</td><td class="amt"><b>${RM(p.net)}</b></td>
-          <td style="text-align:right;white-space:nowrap"><button class="mini g" onclick="printPayslip('${p.no}')">Print</button><button class="mini" onclick="delPayslip('${p.no}')">Delete</button></td></tr>`).join('')}
+          <td style="text-align:right;white-space:nowrap"><button class="mini g" onclick="printPayslip('${p.no}')">Print</button><button class="mini" onclick="skillPdfPayslip('${p.no}',this)">Skill PDF</button><button class="mini" onclick="delPayslip('${p.no}')">Delete</button></td></tr>`).join('')}
         </tbody></table></div>`:''}`;
     return;}
 
