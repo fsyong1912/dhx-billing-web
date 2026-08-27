@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.25</title>
+<title>DHExpress v3.29</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -82,6 +82,10 @@
   .lg-btn{width:100%;margin-top:14px;padding:12px;border:none;border-radius:9px;background:var(--green);color:#fff;font-size:15px;font-weight:600;cursor:pointer}
   .lg-btn:hover{background:var(--green-dark)}
   .lg-err{color:var(--red);font-size:12px;min-height:16px;margin-top:8px}
+  .grp{cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none}
+  .grp .chev{font-size:10px;transition:transform .15s;opacity:.55}
+  .navgroup.collapsed .grp .chev{transform:rotate(-90deg)}
+  .navgroup.collapsed>a{display:none}
   .split{display:flex;justify-content:space-between;margin-top:14px}
   .split .lab{color:var(--muted);font-size:12px;display:block;margin-top:2px}
   .split b{font-size:15px}
@@ -241,33 +245,33 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.25</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.29</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
-      <div class="grp">Sales</div>
+      <div class="navgroup" data-grp="Sales"><div class="grp" onclick="toggleGroup('Sales')"><span>Sales</span><span class="chev">▾</span></div>
       <a data-view="quotation"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M15 3v4h4"/><path d="M9 12h6M9 16h4"/></svg></span> Quotation</a>
       <a data-view="invoice"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-2.5-1.6L14 21l-2-1.6L10 21l-2-1.6L5 21z"/><path d="M9 8h6M9 12h6"/></svg></span> Invoice</a>
       <a data-view="creditnote"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 5 3 10 8 10"/><path d="M3.5 10a8 8 0 1 0 1.9-3.3"/></svg></span> Credit Note</a>
       <a data-view="deliveryorders"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v9H2z"/><path d="M13 9h4l3 3v3h-7z"/><circle cx="6" cy="17.5" r="1.6"/><circle cx="16" cy="17.5" r="1.6"/></svg></span> Delivery Order</a>
-      <a data-view="payments"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M14.6 9.2c-.6-.8-1.7-1-2.6-.6-.9.4-.9 1.5 0 1.9l1.6.8c.9.4.9 1.5 0 1.9-.9.4-2 .2-2.6-.6"/></svg></span> Payments</a>
-      <div class="grp">Purchase</div>
+      <a data-view="payments"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M14.6 9.2c-.6-.8-1.7-1-2.6-.6-.9.4-.9 1.5 0 1.9l1.6.8c.9.4.9 1.5 0 1.9-.9.4-2 .2-2.6-.6"/></svg></span> Payments</a></div>
+      <div class="navgroup" data-grp="Purchase"><div class="grp" onclick="toggleGroup('Purchase')"><span>Purchase</span><span class="chev">▾</span></div>
       <a data-view="purchase"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></span> Expenses</a>
       <a data-view="bills"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1H9z"/><path d="M9 11h6M9 15h4"/></svg></span> Supplier Bills</a>
-      <a data-view="billpayments"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/><path d="M6 12h.4M17.6 12h.4"/></svg></span> Supplier Payments</a>
-      <div class="grp">Payroll</div>
-      <a data-view="drivers"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg></span> Staff</a>
+      <a data-view="billpayments"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/><path d="M6 12h.4M17.6 12h.4"/></svg></span> Supplier Payments</a></div>
+      <div class="navgroup" data-grp="Payroll"><div class="grp" onclick="toggleGroup('Payroll')"><span>Payroll</span><span class="chev">▾</span></div>
+      <a data-view="drivers"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/></svg></span> Employees</a>
       <a data-view="payroutes"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h6a4 4 0 0 0 0-8H10a4 4 0 0 1 0-8h6"/></svg></span> Route Rates</a>
       <a data-view="trips"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></span> Trips</a>
       <a data-view="ot"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span> Overtime</a>
       <a data-view="commission"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span> Commission</a>
       <a data-view="leave"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span> Leave</a>
-      <a data-view="payrun"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/></svg></span> Pay Run</a>
-      <div class="grp">Reports</div>
-      <a data-view="reports"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="11" width="3" height="8"/><rect x="10.5" y="6" width="3" height="13"/><rect x="16" y="14" width="3" height="5"/></svg></span> Reports</a>
-      <div class="grp">Setup</div>
+      <a data-view="payrun"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/></svg></span> Pay Run</a></div>
+      <div class="navgroup" data-grp="Reports"><div class="grp" onclick="toggleGroup('Reports')"><span>Reports</span><span class="chev">▾</span></div>
+      <a data-view="reports"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="11" width="3" height="8"/><rect x="10.5" y="6" width="3" height="13"/><rect x="16" y="14" width="3" height="5"/></svg></span> Reports</a></div>
+      <div class="navgroup" data-grp="Setup"><div class="grp" onclick="toggleGroup('Setup')"><span>Setup</span><span class="chev">▾</span></div>
       <a data-view="ratecard"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12l-8 8-9-9V4h7z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg></span> Rate Card</a>
       <a data-view="contacts"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5.2a3.5 3.5 0 0 1 0 6.6M22 20a6 6 0 0 0-4-5.7"/></svg></span> Contacts</a>
-      <a data-view="settings"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span> Company settings</a>
+      <a data-view="settings"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span> Company settings</a></div>
     </nav>
   </aside>
   <div class="main">
@@ -322,7 +326,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.25';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.29';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -377,7 +381,7 @@ function donutChart(entries){const total=entries.reduce((s,e)=>s+e.value,0)||1,r
   const segs=entries.map(e=>{const frac=e.value/total,seg=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${e.color}" stroke-width="15" stroke-dasharray="${(frac*C).toFixed(2)} ${(C-frac*C).toFixed(2)}" stroke-dashoffset="${(-off*C).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=frac;return seg;}).join('');
   return `<svg viewBox="0 0 104 104" style="width:104px;height:104px;flex:none">${segs}</svg>`;}
 
-async function load(){let un=false;try{const r=await fetch('/api/state');if(r.status===401){un=true;}else if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(un){showGate();return;}loadedRev=(data&&data._rev)||0;if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(!data.drivers)data.drivers=[];if(!data.payRoutes)data.payRoutes=[];if(!data.trips)data.trips=[];if(!data.payslips)data.payslips=[];if(!data.rateCard)data.rateCard=[];if(!data.specialRates)data.specialRates=[];if(!data.leaves)data.leaves=[];if(!data.otRecords)data.otRecords=[];if(!data.commissions)data.commissions=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;if(data.company.nextPay==null)data.company.nextPay=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
+async function load(){let un=false;try{const r=await fetch('/api/state');if(r.status===401){un=true;}else if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(un){showGate();return;}loadedRev=(data&&data._rev)||0;if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(!data.drivers)data.drivers=[];if(!data.payRoutes)data.payRoutes=[];if(!data.trips)data.trips=[];if(!data.payslips)data.payslips=[];if(!data.rateCard)data.rateCard=[];if(!data.specialRates)data.specialRates=[];if(!data.leaves)data.leaves=[];if(!data.otRecords)data.otRecords=[];if(!data.commissions)data.commissions=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;if(data.company.nextPay==null)data.company.nextPay=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();applyNavCollapse();}
 async function save(){mem=data;
   try{
     const chk=await fetch('/api/state');
@@ -898,11 +902,12 @@ function listActions(html){return `<td style="text-align:right;white-space:nowra
 /* ===== Payroll (driver trip service fee) ===== */
 let drvForm=null;
 function drvBlank(id){return{id:id||('D'+Date.now()),name:'',active:true,nric:'',phone:'',email:'',address:'',position:'Driver',startDate:'',confirmDate:'',licenseNo:'',licenseExpiry:'',emgName:'',emgPhone:'',annualEnt:8,basicSalary:0,dailyRate:0,earnsTrips:true,commRate:0,notes:''};}
+function payLabel(d){const p=[];if((+d.basicSalary)>0)p.push('Monthly '+RM(d.basicSalary));if((+d.dailyRate)>0)p.push('Daily '+RM(d.dailyRate));if(d.earnsTrips!==false)p.push('Per-trip');if((+d.commRate)>0)p.push('+Comm '+RM(d.commRate)+'/unit');return p.length?p.join(' · '):'—';}
 function newDriver(){drvForm=Object.assign(drvBlank(),{_new:true});curView='drvform';render();}
 function editDriver(id){const d=data.drivers.find(x=>x.id===id);if(!d)return;drvForm=Object.assign(drvBlank(d.id),d,{_new:false});curView='drvform';render();}
 function dvSet(k,v){drvForm[k]=v;}
 function cancelDriver(){drvForm=null;curView='drivers';render();}
-function saveDriver(){if(!drvForm.name.trim()){alert('Enter the staff name.');return;}
+function saveDriver(){if(!drvForm.name.trim()){alert('Enter the employee name.');return;}
   const rec=Object.assign({},drvForm);delete rec._new;rec.name=rec.name.trim();rec.annualEnt=parseFloat(rec.annualEnt)||0;
   const idx=data.drivers.findIndex(x=>x.id===rec.id);if(idx>=0)data.drivers[idx]=rec;else data.drivers.push(rec);
   drvForm=null;curView='drivers';save();}
@@ -923,12 +928,14 @@ function addTrip(){if(!tripForm.driver){alert('Pick a driver.');return;}if(!trip
 function delTrip(id){if(!confirm('Delete this trip?'))return;data.trips=data.trips.filter(x=>x.id!==id);save();}
 function tfSet(k,v){tripFilter[k]=v;render();}
 function filteredTrips(){let l=data.trips.slice();const f=tripFilter;if(f.from)l=l.filter(t=>t.date>=f.from);if(f.to)l=l.filter(t=>t.date<=f.to);if(f.driver)l=l.filter(t=>t.driver===f.driver);return l.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);}
-let payRun={driver:'',period:new Date().toISOString().slice(0,7),allowance:0,advance:0,deduction:0,employerStat:0,daysWorked:0,note:''};
+let payRun={driver:'',period:new Date().toISOString().slice(0,7),allowance:0,advance:0,deduction:0,employerStat:0,workDates:[],note:''};
 function prSet(k,v){payRun[k]=(k==='driver'||k==='period'||k==='note')?v:(parseFloat(v)||0);render();}
 function prTrips(){if(!payRun.driver||!payRun.period)return [];return data.trips.filter(t=>t.driver===payRun.driver&&(t.date||'').slice(0,7)===payRun.period);}
 function prStaff(){return data.drivers.find(d=>d.name===payRun.driver)||{};}
 function prBasic(){const s=prStaff();return (+s.basicSalary)||0;}
-function prDaily(){const s=prStaff();return ((+s.dailyRate)||0)*(payRun.daysWorked||0);}
+function prDaily(){const s=prStaff();return ((+s.dailyRate)||0)*((payRun.workDates||[]).length);}
+function prAddWorkDate(d){if(!d)return;if(!payRun.workDates)payRun.workDates=[];if(!payRun.workDates.includes(d))payRun.workDates.push(d);payRun.workDates.sort();render();}
+function prDelWorkDate(d){payRun.workDates=(payRun.workDates||[]).filter(x=>x!==d);render();}
 function prTripsBase(){const s=prStaff();return s.earnsTrips===false?0:prTrips().reduce((a,t)=>a+tripBase(t),0);}
 function prComm(){const s=prStaff();return ((+s.commRate)||0)>0?commForPeriod(payRun.driver,payRun.period):0;}
 function prServiceFee(){return prBasic()+prDaily()+prTripsBase()+prComm();}
@@ -937,21 +944,21 @@ function prOT(){return (payRun.driver&&payRun.period)?otForPeriod(payRun.driver,
 function commForPeriod(driver,period){return data.commissions.filter(c=>c.driver===driver&&(c.date||'').slice(0,7)===period).reduce((a,c)=>a+(c.amount||0),0);}
 let cmForm={driver:'',date:todayISO(),units:1,note:''};
 function cmSet(k,v){cmForm[k]=(k==='units')?(parseFloat(v)||0):v;render();}
-function addCommission(){if(!cmForm.driver){alert('Pick a staff.');return;}
+function addCommission(){if(!cmForm.driver){alert('Pick an employee.');return;}
   const s=data.drivers.find(d=>d.name===cmForm.driver)||{};const rate=(+s.commRate)||0;
-  if(rate<=0&&!confirm('This staff has no commission rate set on their profile. Add anyway (amount will be 0)?'))return;
+  if(rate<=0&&!confirm('This employee has no commission rate set on their profile. Add anyway (amount will be 0)?'))return;
   data.commissions.push({id:'C'+Date.now(),date:cmForm.date,driver:cmForm.driver,units:cmForm.units||0,rate:rate,amount:(cmForm.units||0)*rate,note:cmForm.note});
   cmForm={driver:cmForm.driver,date:cmForm.date,units:1,note:''};save();}
 function delCommission(id){if(!confirm('Delete this commission record?'))return;data.commissions=data.commissions.filter(x=>x.id!==id);save();}
 function prNet(){return prServiceFee()+prMeal()+prOT()+(payRun.allowance||0)-(payRun.advance||0)-(payRun.deduction||0);}
-function generatePayslip(){if(!payRun.driver){alert('Pick a staff.');return;}const trips=prTrips();const fee=prServiceFee();const meal=prMeal();const ot=prOT();const net=prNet();
-  if(fee<=0&&meal<=0&&ot<=0&&!confirm('No earnings computed for this staff/period. Continue anyway?'))return;
-  const rec={no:'PAY.DHE.'+YR+'.'+pad3(data.company.nextPay),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,basic:prBasic(),daily:prDaily(),tripEarn:prTripsBase(),comm:prComm(),daysWorked:payRun.daysWorked||0,meal:meal,ot:ot,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
-  data.payslips.push(rec);data.company.nextPay++;save();printPayslip(rec.no);payRun={driver:'',period:payRun.period,allowance:0,advance:0,deduction:0,employerStat:0,daysWorked:0,note:''};}
+function generatePayslip(){if(!payRun.driver){alert('Pick an employee.');return;}const trips=prTrips();const fee=prServiceFee();const meal=prMeal();const ot=prOT();const net=prNet();
+  if(fee<=0&&meal<=0&&ot<=0&&!confirm('No earnings computed for this employee/period. Continue anyway?'))return;
+  const rec={no:'PAY.DHE.'+YR+'.'+pad3(data.company.nextPay),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,basic:prBasic(),daily:prDaily(),tripEarn:prTripsBase(),comm:prComm(),daysWorked:(payRun.workDates||[]).length,meal:meal,ot:ot,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
+  data.payslips.push(rec);data.company.nextPay++;save();printPayslip(rec.no);payRun={driver:'',period:payRun.period,allowance:0,advance:0,deduction:0,employerStat:0,workDates:[],note:''};}
 function delPayslip(no){if(!confirm('Delete payslip '+no+'?'))return;data.payslips=data.payslips.filter(x=>x.no!==no);save();}
 function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
   doPrint(`<div class="doc">${coHeader()}<div class="doctype"><div class="t">DRIVER PAYMENT VOUCHER</div><div class="m">No: <b>${esc(p.no)}</b><br>Date: ${p.date}<br>Period: ${esc(p.period)}</div></div></div>
-  <div class="billto"><div><div class="lab">Pay To (Driver)</div><div class="v">${esc(p.driver)}</div></div><div><div class="lab">Trips</div><div class="v">${p.tripsCount} trip(s)</div></div></div>
+  <div class="billto"><div><div class="lab">Pay To (Employee)</div><div class="v">${esc(p.driver)}</div></div><div><div class="lab">Trips</div><div class="v">${p.tripsCount} trip(s)</div></div></div>
   <table class="items"><thead><tr><th>Description</th><th style="text-align:right">Amount (RM)</th></tr></thead><tbody>
     ${p.basic?`<tr><td>Basic salary</td><td style="text-align:right">${p.basic.toFixed(2)}</td></tr>`:''}
     ${p.daily?`<tr><td>Daily pay (${p.daysWorked||0} days)</td><td style="text-align:right">${p.daily.toFixed(2)}</td></tr>`:''}
@@ -967,7 +974,7 @@ function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
   <div class="totals"><div class="tr grand"><span>Net Pay</span><span>${RM(p.net)}</span></div></div>
   ${p.employerStat?`<div class="terms">Employer statutory (EPF/SOCSO/EIS) borne by the company, not deducted from the driver: ${RM(p.employerStat)}.</div>`:''}
   ${p.note?`<div class="terms"><b>Note:</b> ${esc(p.note)}</div>`:''}
-  <div class="sign"><div class="box">Received by (Driver)<br>Name / Date</div><div class="box">Approved by<br>For ${esc(data.company.name)}</div></div><div class="foot">Computer-generated payment voucher. Statutory figures per HR.my.</div></div>`);}
+  <div class="sign"><div class="box">Received by (Employee)<br>Name / Date</div><div class="box">Approved by<br>For ${esc(data.company.name)}</div></div><div class="foot">Computer-generated payment voucher. Statutory figures per HR.my.</div></div>`);}
 /* ===== Rate Card + customer special rates ===== */
 function newRateItem(){const n=prompt('Rate item name (e.g. Miri to KK, LCL):');if(!n||!n.trim())return;const u=prompt('Unit (e.g. per m3, per kg, per trip):','');const r=prompt('Standard rate (RM):','0');data.rateCard.push({id:'RC'+Date.now(),name:n.trim(),unit:(u||'').trim(),rate:parseFloat(r)||0});save();}
 function editRateItem(id){const it=data.rateCard.find(x=>x.id===id);if(!it)return;const n=prompt('Name:',it.name);if(n===null)return;const u=prompt('Unit:',it.unit||'');if(u===null)return;const r=prompt('Standard rate (RM):',it.rate);if(r===null)return;it.name=n.trim()||it.name;it.unit=(u||'').trim();it.rate=parseFloat(r)||0;save();}
@@ -996,7 +1003,7 @@ function seedPresetRates(){const C=[
 /* ===== Leave + Overtime ===== */
 let lvForm={driver:'',type:'Annual',from:todayISO(),to:todayISO(),days:1,reason:'',status:'Approved'};
 function lvSet(k,v){lvForm[k]=(k==='days')?(parseFloat(v)||0):v;render();}
-function addLeave(){if(!lvForm.driver){alert('Pick a staff.');return;}if(!lvForm.from||!lvForm.to){alert('Pick the dates.');return;}
+function addLeave(){if(!lvForm.driver){alert('Pick an employee.');return;}if(!lvForm.from||!lvForm.to){alert('Pick the dates.');return;}
   data.leaves.push({id:'L'+Date.now(),driver:lvForm.driver,type:lvForm.type,from:lvForm.from,to:lvForm.to,days:lvForm.days||0,reason:lvForm.reason,status:lvForm.status});
   lvForm={driver:lvForm.driver,type:'Annual',from:todayISO(),to:todayISO(),days:1,reason:'',status:'Approved'};save();}
 function delLeave(id){if(!confirm('Delete this leave record?'))return;data.leaves=data.leaves.filter(x=>x.id!==id);save();}
@@ -1005,7 +1012,7 @@ let otForm={driver:'',date:todayISO(),hours:0,rate:0,note:''};
 function otSet(k,v){otForm[k]=(k==='hours'||k==='rate')?(parseFloat(v)||0):v;
   if(k==='driver'){const s=data.drivers.find(d=>d.name===v)||{};const hr=s.basicSalary?((+s.basicSalary)/26/8):(s.dailyRate?((+s.dailyRate)/8):0);if(hr)otForm.rate=Math.round(hr*100)/100;}
   render();}
-function addOT(){if(!otForm.driver){alert('Pick a staff.');return;}
+function addOT(){if(!otForm.driver){alert('Pick an employee.');return;}
   const amt=(otForm.hours||0)*(otForm.rate||0)*1.5;
   data.otRecords.push({id:'O'+Date.now(),driver:otForm.driver,date:otForm.date,hours:otForm.hours||0,rate:otForm.rate||0,amount:amt,note:otForm.note});
   otForm={driver:otForm.driver,date:otForm.date,hours:0,rate:otForm.rate,note:''};save();}
@@ -1013,6 +1020,8 @@ function delOT(id){if(!confirm('Delete this OT record?'))return;data.otRecords=d
 function otForPeriod(driver,period){return data.otRecords.filter(o=>o.driver===driver&&(o.date||'').slice(0,7)===period).reduce((s,o)=>s+(o.amount||0),0);}
 function go(v){curView=v;const a=document.querySelector('#nav a[data-view="'+v+'"]');if(a){document.querySelectorAll('#nav a').forEach(x=>x.classList.toggle('active',x===a));}render();}
 function dismissSetup(){data.company.setupHidden=true;save();}
+function applyNavCollapse(){const nc=(data.company&&data.company.navCollapsed)||{};document.querySelectorAll('.navgroup').forEach(g=>{g.classList.toggle('collapsed',!!nc[g.getAttribute('data-grp')]);});}
+function toggleGroup(name){if(!data.company.navCollapsed)data.company.navCollapsed={};data.company.navCollapsed[name]=!data.company.navCollapsed[name];applyNavCollapse();save();}
 function render(){
   const c=data.company;document.getElementById('coName').textContent=c.name;const el=document.getElementById('content');
   const missing=[];if(!c.addr)missing.push('address');if(!c.bank)missing.push('bank details');if(c.sstreg==='yes'&&!c.sstno)missing.push('SST no.');
@@ -1054,7 +1063,7 @@ function render(){
     const catEntries=Object.entries(catMap).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).map(([label,value],i)=>({label,value,color:CATCOLORS[i%CATCOLORS.length]}));
     const setup=[
       {label:'Complete company settings (address & bank)',done:!!(c.addr&&c.bank),view:'settings',btn:'Fill'},
-      {label:'Add your staff / drivers',done:(data.drivers||[]).length>0,view:'drivers',btn:'Add'},
+      {label:'Add your employees / drivers',done:(data.drivers||[]).length>0,view:'drivers',btn:'Add'},
       {label:'Set route rates for trips',done:(data.payRoutes||[]).length>0,view:'payroutes',btn:'Set'},
       {label:'Set up your rate card',done:(data.rateCard||[]).length>0,view:'ratecard',btn:'Set'},
       {label:'Create your first quotation or invoice',done:((data.quotations||[]).length+(data.invoices||[]).length)>0,view:'invoice',btn:'Create'}
@@ -1559,17 +1568,18 @@ function render(){
 
   if(curView==='drivers'){
     const yr=new Date().getFullYear();
-    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Staff</h1><div class="desc">Employee records, roster and annual leave balance.</div></div><button class="btn" onclick="newDriver()">＋ New Staff</button></div>
-      <div class="panel"><table><thead><tr><th>Name</th><th>Position</th><th>Contact</th><th>Joined</th><th class="amt">Annual Leave Left</th><th>Status</th><th style="text-align:right">Action</th></tr></thead><tbody>
-      ${data.drivers.map(d=>{const ent=(d.annualEnt==null?8:d.annualEnt);const taken=leaveTaken(d.name,'Annual',yr);const left=ent-taken;return `<tr><td><b>${esc(d.name)}</b></td><td>${esc(d.position||'-')}</td><td>${esc(d.phone||'-')}</td><td>${d.startDate||'-'}</td><td class="amt">${left} / ${ent}</td>
+    const monthlyTotal=data.drivers.filter(d=>d.active!==false).reduce((s,d)=>s+((+d.basicSalary)||0),0);
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Employees</h1><div class="desc">Employee records, pay, roster and annual leave balance.</div></div><button class="btn" onclick="newDriver()">＋ New Employee</button></div>
+      <div class="panel"><table><thead><tr><th>Name</th><th>Position</th><th>Pay</th><th>Contact</th><th>Joined</th><th class="amt">Leave Left</th><th>Status</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${data.drivers.map(d=>{const ent=(d.annualEnt==null?8:d.annualEnt);const taken=leaveTaken(d.name,'Annual',yr);const left=ent-taken;return `<tr><td><b>${esc(d.name)}</b></td><td>${esc(d.position||'-')}</td><td style="font-size:13px">${payLabel(d)}</td><td>${esc(d.phone||'-')}</td><td>${d.startDate||'-'}</td><td class="amt">${left} / ${ent}</td>
         <td><span class="pill ${d.active!==false?'ready':'void'}">${d.active!==false?'Active':'Inactive'}</span></td>
         <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editDriver('${d.id}')">Edit</button><button class="mini" onclick="toggleDriver('${d.id}')">${d.active!==false?'Deactivate':'Activate'}</button><button class="mini" onclick="delDriver('${d.id}')">Delete</button></td></tr>`;}).join('')}
-      </tbody></table>${data.drivers.length?'':'<div class="empty">📭<br>No staff yet. Click “New Staff”.</div>'}</div>`;
+      </tbody>${monthlyTotal>0?`<tfoot><tr style="background:#FBFCFC"><td colspan="2"><b>Monthly fixed salary (basic only)</b></td><td colspan="6"><b>${RM(monthlyTotal)}</b> <span class="desc">per month · excludes trips, daily &amp; commission (variable)</span></td></tr></tfoot>`:''}</table>${data.drivers.length?'':'<div class="empty">📭<br>No employees yet. Click “New Employee”.</div>'}</div>`;
     return;}
 
   if(curView==='drvform'){
     const f=drvForm;
-    el.innerHTML=`<div class="page-head"><div style="display:flex;align-items:center;gap:10px"><span style="cursor:pointer;font-size:20px" onclick="cancelDriver()">←</span><h1>${f._new?'New':'Edit'} Staff</h1></div></div>
+    el.innerHTML=`<div class="page-head"><div style="display:flex;align-items:center;gap:10px"><span style="cursor:pointer;font-size:20px" onclick="cancelDriver()">←</span><h1>${f._new?'New':'Edit'} Employee</h1></div></div>
       <div class="qform">
         <div class="qsec"><div class="qsec-grid"><div class="h">Personal<p>Identity and contact.</p></div>
           <div><div class="qf"><label>Full name <span class="req">*</span></label><input value="${esc(f.name)}" oninput="dvSet('name',this.value)"></div>
@@ -1584,7 +1594,7 @@ function render(){
           <div><div class="qf"><label>Annual leave entitlement (days/year)</label><input type="number" step="1" value="${f.annualEnt==null?8:f.annualEnt}" onchange="dvSet('annualEnt',this.value)"></div>
             <div class="qf"><label>Driving license no.</label><input value="${esc(f.licenseNo)}" oninput="dvSet('licenseNo',this.value)"></div>
             <div class="qf"><label>License expiry</label><input type="date" value="${f.licenseExpiry||''}" onchange="dvSet('licenseExpiry',this.value)"></div></div></div></div>
-        <div class="qsec"><div class="qsec-grid"><div class="h">Pay &amp; earnings<p>Tick the income blocks this staff earns. Pay Run adds them up.</p></div>
+        <div class="qsec"><div class="qsec-grid"><div class="h">Pay &amp; earnings<p>Tick the income blocks this employee earns. Pay Run adds them up.</p></div>
           <div><div class="qf"><label>Basic monthly salary (RM)</label><input type="number" step="0.01" value="${f.basicSalary||''}" onchange="dvSet('basicSalary',parseFloat(this.value)||0)" placeholder="0 = none"></div>
             <div class="qf"><label>Daily rate (RM/day) <span class="desc">part-timer</span></label><input type="number" step="0.01" value="${f.dailyRate||''}" onchange="dvSet('dailyRate',parseFloat(this.value)||0)" placeholder="0 = none"></div></div>
           <div><div class="qf"><label>Trip earnings</label><label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px"><input type="checkbox" ${f.earnsTrips!==false?'checked':''} onchange="dvSet('earnsTrips',this.checked)"> Earns linehaul trip fees (Trips page)</label></div>
@@ -1594,7 +1604,7 @@ function render(){
             <div class="qf"><label>Emergency contact phone</label><input value="${esc(f.emgPhone)}" oninput="dvSet('emgPhone',this.value)"></div>
             <div class="qf"><label>Status</label><div class="statusseg"><button class="${f.active!==false?'on':''}" onclick="dvSet('active',true);render()">Active</button><button class="${f.active===false?'on':''}" onclick="dvSet('active',false);render()">Inactive</button></div></div></div>
           <div><div class="qf"><label>Notes</label><textarea oninput="dvSet('notes',this.value)">${esc(f.notes)}</textarea></div></div></div></div>
-        <div class="qbar"><button class="btn ghost" onclick="cancelDriver()">Cancel</button><button class="btn" onclick="saveDriver()">Save Staff</button></div>
+        <div class="qbar"><button class="btn ghost" onclick="cancelDriver()">Cancel</button><button class="btn" onclick="saveDriver()">Save Employee</button></div>
       </div>`;
     return;}
 
@@ -1603,15 +1613,15 @@ function render(){
     const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${f.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
     const list=data.commissions.slice().sort((a,b)=>(a.date<b.date?1:-1));
     const sel=data.drivers.find(d=>d.name===f.driver)||{};const selRate=(+sel.commRate)||0;
-    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Commission</h1><div class="desc">KK local delivery commission. Rate (RM per delivery) comes from each staff's profile. Month total flows into Pay Run.</div></div></div>
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Commission</h1><div class="desc">KK local delivery commission. Rate (RM per delivery) comes from each employee's profile. Month total flows into Pay Run.</div></div></div>
       <div class="panel" style="padding:16px"><div class="filtergrid" style="grid-template-columns:1.2fr auto auto 1.4fr auto;gap:10px;align-items:end">
-        <div class="fld"><label>Staff</label><select onchange="cmSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
+        <div class="fld"><label>Employee</label><select onchange="cmSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
         <div class="fld"><label>Date</label><input type="date" value="${f.date}" onchange="cmSet('date',this.value)"></div>
         <div class="fld"><label>Deliveries</label><input type="number" step="1" value="${f.units||''}" onchange="cmSet('units',this.value)" style="width:90px"></div>
         <div class="fld"><label>Note (opt)</label><input value="${esc(f.note)}" onchange="cmSet('note',this.value)"></div>
         <div><button class="btn" onclick="addCommission()">＋ Add</button></div>
-      </div><div class="note" style="margin-top:8px">${f.driver?(selRate>0?('Rate RM'+selRate.toFixed(2)+' / delivery · this entry: '+RM((f.units||0)*selRate)):('⚠ '+esc(f.driver)+' has no commission rate set — edit their Staff profile first.')):'Commission rate is set per staff on the Staff profile (Commission RM / delivery).'}</div></div>
-      <div class="panel"><h2 style="padding:14px 18px 0">Commission Records</h2><table><thead><tr><th>Date</th><th>Staff</th><th class="amt">Deliveries</th><th class="amt">Rate</th><th class="amt">Amount</th><th>Note</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      </div><div class="note" style="margin-top:8px">${f.driver?(selRate>0?('Rate RM'+selRate.toFixed(2)+' / delivery · this entry: '+RM((f.units||0)*selRate)):('⚠ '+esc(f.driver)+' has no commission rate set — edit their Employee profile first.')):'Commission rate is set per employee on the Employee profile (Commission RM / delivery).'}</div></div>
+      <div class="panel"><h2 style="padding:14px 18px 0">Commission Records</h2><table><thead><tr><th>Date</th><th>Employee</th><th class="amt">Deliveries</th><th class="amt">Rate</th><th class="amt">Amount</th><th>Note</th><th style="text-align:right">Action</th></tr></thead><tbody>
       ${list.map(o=>`<tr><td>${o.date}</td><td>${esc(o.driver)}</td><td class="amt">${o.units}</td><td class="amt">${RM(o.rate)}</td><td class="amt"><b>${RM(o.amount)}</b></td><td>${esc(o.note||'-')}</td>
         <td style="text-align:right"><button class="mini" onclick="delCommission('${o.id}')">Delete</button></td></tr>`).join('')}
       </tbody></table>${list.length?'':'<div class="empty">📭<br>No commission records yet.</div>'}</div>`;
@@ -1621,20 +1631,20 @@ function render(){
     const yr=new Date().getFullYear();const f=lvForm;
     const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${f.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
     const list=data.leaves.slice().sort((a,b)=>(a.from<b.from?1:-1));
-    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Leave</h1><div class="desc">Record staff leave; annual balance tracked per year.</div></div></div>
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Leave</h1><div class="desc">Record employee leave; annual balance tracked per year.</div></div></div>
       <div class="panel" style="padding:16px"><div class="filtergrid" style="grid-template-columns:1.1fr 0.9fr 1fr 1fr auto 1.3fr auto;gap:10px;align-items:end">
-        <div class="fld"><label>Staff</label><select onchange="lvSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
+        <div class="fld"><label>Employee</label><select onchange="lvSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
         <div class="fld"><label>Type</label><select onchange="lvSet('type',this.value)">${['Annual','Sick','Emergency','Unpaid','Other'].map(t=>`<option ${f.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
         <div class="fld"><label>From</label><input type="date" value="${f.from}" onchange="lvSet('from',this.value)"></div>
         <div class="fld"><label>To</label><input type="date" value="${f.to}" onchange="lvSet('to',this.value)"></div>
         <div class="fld"><label>Days</label><input type="number" step="0.5" value="${f.days}" onchange="lvSet('days',this.value)" style="width:70px"></div>
         <div class="fld"><label>Reason (opt)</label><input value="${esc(f.reason)}" onchange="lvSet('reason',this.value)"></div>
         <div><button class="btn" onclick="addLeave()">＋ Add</button></div>
-      </div>${data.drivers.length?'':'<p class="note" style="margin-top:8px">Add staff first (Drivers page).</p>'}</div>
-      ${data.drivers.filter(d=>d.active!==false).length?`<div class="panel"><h2 style="padding:14px 18px 0">Annual Leave Balance ${yr}</h2><table><thead><tr><th>Staff</th><th class="amt">Entitled</th><th class="amt">Taken</th><th class="amt">Left</th></tr></thead><tbody>
+      </div>${data.drivers.length?'':'<p class="note" style="margin-top:8px">Add employees first.</p>'}</div>
+      ${data.drivers.filter(d=>d.active!==false).length?`<div class="panel"><h2 style="padding:14px 18px 0">Annual Leave Balance ${yr}</h2><table><thead><tr><th>Employee</th><th class="amt">Entitled</th><th class="amt">Taken</th><th class="amt">Left</th></tr></thead><tbody>
         ${data.drivers.filter(d=>d.active!==false).map(d=>{const ent=(d.annualEnt==null?8:d.annualEnt);const tk=leaveTaken(d.name,'Annual',yr);return `<tr><td><b>${esc(d.name)}</b></td><td class="amt">${ent}</td><td class="amt">${tk}</td><td class="amt"><b style="color:${(ent-tk)<0?'var(--red)':'var(--ok)'}">${ent-tk}</b></td></tr>`;}).join('')}
         </tbody></table></div>`:''}
-      <div class="panel"><h2 style="padding:14px 18px 0">Leave Records</h2><table><thead><tr><th>Staff</th><th>Type</th><th>From</th><th>To</th><th class="amt">Days</th><th>Reason</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      <div class="panel"><h2 style="padding:14px 18px 0">Leave Records</h2><table><thead><tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th class="amt">Days</th><th>Reason</th><th style="text-align:right">Action</th></tr></thead><tbody>
       ${list.map(l=>`<tr><td>${esc(l.driver)}</td><td>${esc(l.type)}</td><td>${l.from}</td><td>${l.to}</td><td class="amt">${l.days}</td><td>${esc(l.reason||'-')}</td>
         <td style="text-align:right"><button class="mini" onclick="delLeave('${l.id}')">Delete</button></td></tr>`).join('')}
       </tbody></table>${list.length?'':'<div class="empty">📭<br>No leave records yet.</div>'}</div>`;
@@ -1644,16 +1654,16 @@ function render(){
     const f=otForm;
     const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${f.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
     const list=data.otRecords.slice().sort((a,b)=>(a.date<b.date?1:-1));
-    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Overtime</h1><div class="desc">Log OT; the month total flows into that staff's Pay Run.</div></div></div>
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Overtime</h1><div class="desc">Log OT; the month total flows into that employee's Pay Run.</div></div></div>
       <div class="panel" style="padding:16px"><div class="filtergrid" style="grid-template-columns:1.2fr auto auto auto 1.4fr auto;gap:10px;align-items:end">
-        <div class="fld"><label>Staff</label><select onchange="otSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
+        <div class="fld"><label>Employee</label><select onchange="otSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
         <div class="fld"><label>Date</label><input type="date" value="${f.date}" onchange="otSet('date',this.value)"></div>
         <div class="fld"><label>Hours</label><input type="number" step="0.5" value="${f.hours||''}" onchange="otSet('hours',this.value)" style="width:80px"></div>
         <div class="fld"><label>Ordinary rate/hr <span class="desc">×1.5 for OT · auto from salary</span></label><input type="number" step="0.01" value="${f.rate||''}" onchange="otSet('rate',this.value)" style="width:120px"></div>
         <div class="fld"><label>Note (opt)</label><input value="${esc(f.note)}" onchange="otSet('note',this.value)"></div>
         <div><button class="btn" onclick="addOT()">＋ Add</button></div>
       </div><div class="note" style="margin-top:8px">Amount = hours × ordinary rate × 1.5.${f.hours&&f.rate?(' This entry: '+RM((f.hours||0)*(f.rate||0)*1.5)):''}</div></div>
-      <div class="panel"><h2 style="padding:14px 18px 0">OT Records</h2><table><thead><tr><th>Date</th><th>Staff</th><th class="amt">Hours</th><th class="amt">Rate</th><th class="amt">Amount</th><th>Note</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      <div class="panel"><h2 style="padding:14px 18px 0">OT Records</h2><table><thead><tr><th>Date</th><th>Employee</th><th class="amt">Hours</th><th class="amt">Rate</th><th class="amt">Amount</th><th>Note</th><th style="text-align:right">Action</th></tr></thead><tbody>
       ${list.map(o=>`<tr><td>${o.date}</td><td>${esc(o.driver)}</td><td class="amt">${o.hours}</td><td class="amt">${RM(o.rate)}</td><td class="amt"><b>${RM(o.amount)}</b></td><td>${esc(o.note||'-')}</td>
         <td style="text-align:right"><button class="mini" onclick="delOT('${o.id}')">Delete</button></td></tr>`).join('')}
       </tbody></table>${list.length?'':'<div class="empty">📭<br>No OT records yet.</div>'}</div>`;
@@ -1692,7 +1702,7 @@ function render(){
           <div class="fld" style="margin:0"><input value="${esc(tripForm.truck)}" onchange="tSet('truck',this.value)" placeholder="Truck (opt)" style="width:120px"></div>
           <div style="font-size:15px;color:var(--slate)">This trip pays: <b style="color:var(--green)">${RM(preview)}</b></div>
           <button class="btn" onclick="addTrip()">＋ Add Trip</button>
-        </div>${data.drivers.length&&data.payRoutes.length?'':'<p class="note" style="margin-top:8px">Add at least one Staff and one Route Rate first.</p>'}</div>
+        </div>${data.drivers.length&&data.payRoutes.length?'':'<p class="note" style="margin-top:8px">Add at least one Employee and one Route Rate first.</p>'}</div>
       <div class="filterbar"><div class="filtergrid" style="grid-template-columns:1.4fr 1fr">
         <div class="fld"><label>Date Range</label><div class="daterange"><input type="date" value="${f.from}" onchange="tfSet('from',this.value)"><span>→</span><input type="date" value="${f.to}" onchange="tfSet('to',this.value)"></div></div>
         <div class="fld"><label>Driver</label><select onchange="tfSet('driver',this.value)"><option value="">All</option>${drvFilterOpts.map(d=>`<option ${f.driver===d?'selected':''}>${esc(d)}</option>`).join('')}</select></div>
@@ -1705,37 +1715,47 @@ function render(){
 
   if(curView==='payrun'){
     const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${payRun.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
-    const staff=prStaff();const trips=prTrips();const basic=prBasic();const daily=prDaily();const tripsB=prTripsBase();const comm=prComm();const fee=prServiceFee();const meal=prMeal();const ot=prOT();const net=prNet();const cost=fee+meal+ot+(payRun.allowance||0)+(payRun.employerStat||0);
-    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Pay Run</h1><div class="desc">Monthly driver settlement → payment voucher.</div></div></div>
-      <div class="panel" style="padding:18px">
-        <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:14px">
-          <div class="fld"><label>Driver</label><select onchange="prSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
+    const staff=prStaff();const trips=prTrips();const basic=prBasic();const daily=prDaily();const tripsB=prTripsBase();const comm=prComm();const fee=prServiceFee();const meal=prMeal();const ot=prOT();const allw=payRun.allowance||0;const gross=fee+meal+ot+allw;const net=prNet();const cost=gross+(payRun.employerStat||0);
+    const wd=(payRun.workDates||[]);
+    const badges=[];if((+staff.basicSalary)>0)badges.push('Monthly');if((+staff.dailyRate)>0)badges.push('Daily');if(staff.earnsTrips!==false)badges.push('Per-trip');if((+staff.commRate)>0)badges.push('Commission');
+    const eRow=(label,val)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)"><span style="color:var(--slate)">${label}</span><b>${RM(val)}</b></div>`;
+    const iRow=(label,key,val,sub)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)"><span style="color:var(--slate)">${label}${sub?` <span class="desc">${sub}</span>`:''}</span><input type="number" step="0.01" value="${val||''}" onchange="prSet('${key}',this.value)" style="width:140px;text-align:right"></div>`;
+    const sHead=t=>`<div style="font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:18px 0 4px">${t}</div>`;
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Pay Run</h1><div class="desc">Build an employee's monthly payslip and voucher.</div></div></div>
+      <div class="panel" style="padding:18px 20px">
+        <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:16px;align-items:end">
+          <div class="fld"><label>Employee</label><select onchange="prSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
           <div class="fld"><label>Period (month)</label><input type="month" value="${payRun.period}" onchange="prSet('period',this.value)"></div>
         </div>
-        ${payRun.driver?`<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px">
-          ${basic?`<div class="row2"><span class="lab">Basic salary (monthly)</span><b>${RM(basic)}</b></div>`:''}
-          ${(staff.dailyRate>0)?`<div class="row2"><span class="lab">Daily pay (${payRun.daysWorked||0} days × ${RM(staff.dailyRate||0)})</span><b>${RM(daily)}</b></div>`:''}
-          ${(staff.earnsTrips!==false)?`<div class="row2"><span class="lab">Trip earnings (${trips.length} trips: fee + loading + Limbang)</span><b>${RM(tripsB)}</b></div>`:''}
-          ${comm?`<div class="row2"><span class="lab">Commission — KK local delivery</span><b>${RM(comm)}</b></div>`:''}
-          ${meal?`<div class="row2"><span class="lab">Meal allowance (non-EPF)</span><b>${RM(meal)}</b></div>`:''}
-          ${ot?`<div class="row2"><span class="lab">Overtime (1.5×)</span><b>${RM(ot)}</b></div>`:''}
-          ${(staff.dailyRate>0)?`<div class="fld" style="margin-top:12px"><label>Days worked this month (daily-paid)</label><input type="number" step="0.5" value="${payRun.daysWorked||''}" onchange="prSet('daysWorked',this.value)" style="width:140px"></div>`:''}
-          <div class="note" style="margin-top:10px">EPF base to key into HR.my = all earnings above except Meal allowance.</div>
-          <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-            <div class="fld"><label>Allowance (+)</label><input type="number" step="0.01" value="${payRun.allowance||''}" onchange="prSet('allowance',this.value)"></div>
-            <div class="fld"><label>Advance (−)</label><input type="number" step="0.01" value="${payRun.advance||''}" onchange="prSet('advance',this.value)"></div>
-          </div>
-          <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
-            <div class="fld"><label>Employee statutory (−) <span class="desc">deducted from driver · from HR.my</span></label><input type="number" step="0.01" value="${payRun.deduction||''}" onchange="prSet('deduction',this.value)"></div>
-            <div class="fld"><label>Employer statutory <span class="desc">company cost, NOT deducted · from HR.my</span></label><input type="number" step="0.01" value="${payRun.employerStat||''}" onchange="prSet('employerStat',this.value)"></div>
-          </div>
-          <div class="fld" style="margin-top:12px"><label>Note</label><input value="${esc(payRun.note)}" onchange="prSet('note',this.value)"></div>
-          <div class="row2" style="margin-top:14px;font-size:18px"><span><b>Net Pay to Driver</b></span><b style="color:var(--ok)">${RM(net)}</b></div>
-          <div class="row2" style="margin-top:4px;color:var(--muted)"><span>Company cost (all earnings + employer statutory)</span><b>${RM(cost)}</b></div>
-          <div style="margin-top:14px"><button class="btn" onclick="generatePayslip()">Generate Payment Voucher</button></div>
-        </div>`:`<p class="note" style="margin-top:12px">Pick a driver and period to compute their service fee.</p>`}
+        ${payRun.driver&&badges.length?`<div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">${badges.map(b=>`<span class="pill ready" style="font-size:11px">${b}</span>`).join('')}</div>`:''}
       </div>
-      ${data.payslips.length?`<div class="panel"><h2 style="padding:14px 18px 0">Payslip History</h2><table><thead><tr><th>No</th><th>Date</th><th>Driver</th><th>Period</th><th class="amt">Trips</th><th class="amt">Net Pay</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${payRun.driver?`
+      ${(+staff.dailyRate)>0?`<div class="panel" style="padding:16px 20px">
+        <label style="font-size:13px;font-weight:600;color:var(--muted)">Days worked this month · pick each working day</label>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap"><input type="date" onchange="prAddWorkDate(this.value);this.value=''"><span class="desc">Daily rate ${RM(staff.dailyRate)} × <b>${wd.length}</b> day${wd.length===1?'':'s'} = <b>${RM(daily)}</b></span></div>
+        ${wd.length?`<div style="margin-top:10px">${wd.map(d=>`<span style="display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:4px 9px;font-size:12px;margin:0 6px 6px 0">${d}<span style="cursor:pointer;color:var(--red);font-weight:700" onclick="prDelWorkDate('${d}')">×</span></span>`).join('')}</div>`:'<div class="desc" style="margin-top:8px">No working days added yet.</div>'}
+      </div>`:''}
+      <div class="panel" style="padding:20px 22px">
+        ${sHead('Earnings')}
+        ${basic?eRow('Basic salary (monthly)',basic):''}
+        ${((+staff.dailyRate)>0)?eRow('Daily pay ('+wd.length+' days × '+RM(staff.dailyRate||0)+')',daily):''}
+        ${(staff.earnsTrips!==false)?eRow('Trip earnings ('+trips.length+' trips: fee + loading + Limbang)',tripsB):''}
+        ${comm?eRow('Commission — KK local delivery',comm):''}
+        ${meal?eRow('Meal allowance (non-EPF)',meal):''}
+        ${ot?eRow('Overtime (1.5×)',ot):''}
+        ${iRow('Allowance (+)','allowance',payRun.allowance,'')}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:2px solid var(--line);margin-top:2px"><span style="font-weight:700">Gross earnings</span><b style="font-size:16px">${RM(gross)}</b></div>
+        ${sHead('Deductions')}
+        ${iRow('Advance (−)','advance',payRun.advance,'')}
+        ${iRow('Employee statutory (−)','deduction',payRun.deduction,'from HR.my')}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-top:2px solid var(--slate);margin-top:6px"><span style="font-size:17px;font-weight:700">Net Pay</span><b style="font-size:24px;color:var(--ok)">${RM(net)}</b></div>
+        ${sHead('Company cost · not part of net pay')}
+        ${iRow('Employer statutory','employerStat',payRun.employerStat,'from HR.my')}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0"><span style="color:var(--muted)">Total company cost</span><b>${RM(cost)}</b></div>
+        <div class="fld" style="margin-top:16px"><label>Note (optional)</label><input value="${esc(payRun.note)}" onchange="prSet('note',this.value)"></div>
+        <div style="margin-top:16px"><button class="btn" style="width:100%;padding:13px;font-size:15px" onclick="generatePayslip()">Generate Payment Voucher</button></div>
+      </div>`:`<div class="panel"><div class="empty" style="padding:44px 0">👤<br>Pick an employee and period to build their payslip.</div></div>`}
+      ${data.payslips.length?`<div class="panel"><h2 style="padding:14px 18px 0">Payslip History</h2><table><thead><tr><th>No</th><th>Date</th><th>Employee</th><th>Period</th><th class="amt">Trips</th><th class="amt">Net Pay</th><th style="text-align:right">Action</th></tr></thead><tbody>
         ${data.payslips.slice().reverse().map(p=>`<tr><td>${esc(p.no)}</td><td>${p.date}</td><td>${esc(p.driver)}</td><td>${esc(p.period)}</td><td class="amt">${p.tripsCount}</td><td class="amt"><b>${RM(p.net)}</b></td>
           <td style="text-align:right;white-space:nowrap"><button class="mini g" onclick="printPayslip('${p.no}')">Print</button><button class="mini" onclick="delPayslip('${p.no}')">Delete</button></td></tr>`).join('')}
         </tbody></table></div>`:''}`;
