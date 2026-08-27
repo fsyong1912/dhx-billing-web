@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.24</title>
+<title>DHExpress v3.25</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -241,7 +241,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.24</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.25</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="grp">Sales</div>
@@ -259,6 +259,7 @@
       <a data-view="payroutes"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h6a4 4 0 0 0 0-8H10a4 4 0 0 1 0-8h6"/></svg></span> Route Rates</a>
       <a data-view="trips"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></span> Trips</a>
       <a data-view="ot"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span> Overtime</a>
+      <a data-view="commission"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span> Commission</a>
       <a data-view="leave"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span> Leave</a>
       <a data-view="payrun"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/></svg></span> Pay Run</a>
       <div class="grp">Reports</div>
@@ -321,7 +322,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.24';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.25';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -333,7 +334,7 @@ function lockApp(){fetch('/api/logout',{method:'POST'}).finally(()=>location.rel
 function bootAuth(){fetch('/api/me').then(r=>r.json()).then(j=>{if(j&&j.authed){load();}else{showGate();}}).catch(()=>showGate());}
 let data={
   company:{name:'DHEXPRESS LOGISTICS SDN BHD',reg:'1683906-D',phone:'',email:'',addr:'',sstreg:'no',sstno:'',bank:'',terms:30,nextInv:1,nextQuo:1,nextCn:1,nextRcp:1,nextBill:1,nextPV:1,nextDO:1,nextPay:1},
-  quotations:[],invoices:[],creditNotes:[],expenses:[],contacts:[],bills:[],deliveryOrders:[],drivers:[],payRoutes:[],trips:[],payslips:[],rateCard:[],specialRates:[],leaves:[],otRecords:[]
+  quotations:[],invoices:[],creditNotes:[],expenses:[],contacts:[],bills:[],deliveryOrders:[],drivers:[],payRoutes:[],trips:[],payslips:[],rateCard:[],specialRates:[],leaves:[],otRecords:[],commissions:[]
 };
 let curType='invoice',curView='dash',lineRows=[],dashPeriod='30',editingExpId=null;
 const RM=n=>'RM '+(Number(n)||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -376,7 +377,7 @@ function donutChart(entries){const total=entries.reduce((s,e)=>s+e.value,0)||1,r
   const segs=entries.map(e=>{const frac=e.value/total,seg=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${e.color}" stroke-width="15" stroke-dasharray="${(frac*C).toFixed(2)} ${(C-frac*C).toFixed(2)}" stroke-dashoffset="${(-off*C).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=frac;return seg;}).join('');
   return `<svg viewBox="0 0 104 104" style="width:104px;height:104px;flex:none">${segs}</svg>`;}
 
-async function load(){let un=false;try{const r=await fetch('/api/state');if(r.status===401){un=true;}else if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(un){showGate();return;}loadedRev=(data&&data._rev)||0;if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(!data.drivers)data.drivers=[];if(!data.payRoutes)data.payRoutes=[];if(!data.trips)data.trips=[];if(!data.payslips)data.payslips=[];if(!data.rateCard)data.rateCard=[];if(!data.specialRates)data.specialRates=[];if(!data.leaves)data.leaves=[];if(!data.otRecords)data.otRecords=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;if(data.company.nextPay==null)data.company.nextPay=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
+async function load(){let un=false;try{const r=await fetch('/api/state');if(r.status===401){un=true;}else if(r.ok){const j=await r.json();if(j&&j.value)data=j.value;}}catch(e){if(mem)data=mem;}if(un){showGate();return;}loadedRev=(data&&data._rev)||0;if(!data.contacts)data.contacts=[];if(!data.bills)data.bills=[];if(!data.deliveryOrders)data.deliveryOrders=[];if(!data.drivers)data.drivers=[];if(!data.payRoutes)data.payRoutes=[];if(!data.trips)data.trips=[];if(!data.payslips)data.payslips=[];if(!data.rateCard)data.rateCard=[];if(!data.specialRates)data.specialRates=[];if(!data.leaves)data.leaves=[];if(!data.otRecords)data.otRecords=[];if(!data.commissions)data.commissions=[];if(data.company){if(data.company.nextBill==null)data.company.nextBill=1;if(data.company.nextPV==null)data.company.nextPV=1;if(data.company.nextCn==null)data.company.nextCn=1;if(data.company.nextRcp==null)data.company.nextRcp=1;if(data.company.nextDO==null)data.company.nextDO=1;if(data.company.nextPay==null)data.company.nextPay=1;}(data.expenses||[]).forEach((e,i)=>{if(!e.id)e.id='E0'+i+'_'+(e.date||'x');});render();}
 async function save(){mem=data;
   try{
     const chk=await fetch('/api/state');
@@ -896,7 +897,7 @@ function listActions(html){return `<td style="text-align:right;white-space:nowra
 
 /* ===== Payroll (driver trip service fee) ===== */
 let drvForm=null;
-function drvBlank(id){return{id:id||('D'+Date.now()),name:'',active:true,nric:'',phone:'',email:'',address:'',position:'Driver',startDate:'',confirmDate:'',licenseNo:'',licenseExpiry:'',emgName:'',emgPhone:'',annualEnt:8,notes:''};}
+function drvBlank(id){return{id:id||('D'+Date.now()),name:'',active:true,nric:'',phone:'',email:'',address:'',position:'Driver',startDate:'',confirmDate:'',licenseNo:'',licenseExpiry:'',emgName:'',emgPhone:'',annualEnt:8,basicSalary:0,dailyRate:0,earnsTrips:true,commRate:0,notes:''};}
 function newDriver(){drvForm=Object.assign(drvBlank(),{_new:true});curView='drvform';render();}
 function editDriver(id){const d=data.drivers.find(x=>x.id===id);if(!d)return;drvForm=Object.assign(drvBlank(d.id),d,{_new:false});curView='drvform';render();}
 function dvSet(k,v){drvForm[k]=v;}
@@ -922,25 +923,43 @@ function addTrip(){if(!tripForm.driver){alert('Pick a driver.');return;}if(!trip
 function delTrip(id){if(!confirm('Delete this trip?'))return;data.trips=data.trips.filter(x=>x.id!==id);save();}
 function tfSet(k,v){tripFilter[k]=v;render();}
 function filteredTrips(){let l=data.trips.slice();const f=tripFilter;if(f.from)l=l.filter(t=>t.date>=f.from);if(f.to)l=l.filter(t=>t.date<=f.to);if(f.driver)l=l.filter(t=>t.driver===f.driver);return l.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);}
-let payRun={driver:'',period:new Date().toISOString().slice(0,7),allowance:0,advance:0,deduction:0,employerStat:0,note:''};
+let payRun={driver:'',period:new Date().toISOString().slice(0,7),allowance:0,advance:0,deduction:0,employerStat:0,daysWorked:0,note:''};
 function prSet(k,v){payRun[k]=(k==='driver'||k==='period'||k==='note')?v:(parseFloat(v)||0);render();}
 function prTrips(){if(!payRun.driver||!payRun.period)return [];return data.trips.filter(t=>t.driver===payRun.driver&&(t.date||'').slice(0,7)===payRun.period);}
-function prServiceFee(){return prTrips().reduce((s,t)=>s+tripBase(t),0);}
-function prMeal(){return prTrips().reduce((s,t)=>s+(t.meal?70:0),0);}
+function prStaff(){return data.drivers.find(d=>d.name===payRun.driver)||{};}
+function prBasic(){const s=prStaff();return (+s.basicSalary)||0;}
+function prDaily(){const s=prStaff();return ((+s.dailyRate)||0)*(payRun.daysWorked||0);}
+function prTripsBase(){const s=prStaff();return s.earnsTrips===false?0:prTrips().reduce((a,t)=>a+tripBase(t),0);}
+function prComm(){const s=prStaff();return ((+s.commRate)||0)>0?commForPeriod(payRun.driver,payRun.period):0;}
+function prServiceFee(){return prBasic()+prDaily()+prTripsBase()+prComm();}
+function prMeal(){const s=prStaff();return s.earnsTrips===false?0:prTrips().reduce((a,t)=>a+(t.meal?70:0),0);}
 function prOT(){return (payRun.driver&&payRun.period)?otForPeriod(payRun.driver,payRun.period):0;}
+function commForPeriod(driver,period){return data.commissions.filter(c=>c.driver===driver&&(c.date||'').slice(0,7)===period).reduce((a,c)=>a+(c.amount||0),0);}
+let cmForm={driver:'',date:todayISO(),units:1,note:''};
+function cmSet(k,v){cmForm[k]=(k==='units')?(parseFloat(v)||0):v;render();}
+function addCommission(){if(!cmForm.driver){alert('Pick a staff.');return;}
+  const s=data.drivers.find(d=>d.name===cmForm.driver)||{};const rate=(+s.commRate)||0;
+  if(rate<=0&&!confirm('This staff has no commission rate set on their profile. Add anyway (amount will be 0)?'))return;
+  data.commissions.push({id:'C'+Date.now(),date:cmForm.date,driver:cmForm.driver,units:cmForm.units||0,rate:rate,amount:(cmForm.units||0)*rate,note:cmForm.note});
+  cmForm={driver:cmForm.driver,date:cmForm.date,units:1,note:''};save();}
+function delCommission(id){if(!confirm('Delete this commission record?'))return;data.commissions=data.commissions.filter(x=>x.id!==id);save();}
 function prNet(){return prServiceFee()+prMeal()+prOT()+(payRun.allowance||0)-(payRun.advance||0)-(payRun.deduction||0);}
-function generatePayslip(){if(!payRun.driver){alert('Pick a driver.');return;}const trips=prTrips();if(!trips.length&&!confirm('No trips found for this period. Continue anyway?'))return;
-  const fee=prServiceFee();const meal=prMeal();const ot=prOT();const net=prNet();
-  const rec={no:'PAY.DHE.'+YR+'.'+pad3(data.company.nextPay),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,meal:meal,ot:ot,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
-  data.payslips.push(rec);data.company.nextPay++;save();printPayslip(rec.no);payRun={driver:'',period:payRun.period,allowance:0,advance:0,deduction:0,employerStat:0,note:''};}
+function generatePayslip(){if(!payRun.driver){alert('Pick a staff.');return;}const trips=prTrips();const fee=prServiceFee();const meal=prMeal();const ot=prOT();const net=prNet();
+  if(fee<=0&&meal<=0&&ot<=0&&!confirm('No earnings computed for this staff/period. Continue anyway?'))return;
+  const rec={no:'PAY.DHE.'+YR+'.'+pad3(data.company.nextPay),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,basic:prBasic(),daily:prDaily(),tripEarn:prTripsBase(),comm:prComm(),daysWorked:payRun.daysWorked||0,meal:meal,ot:ot,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
+  data.payslips.push(rec);data.company.nextPay++;save();printPayslip(rec.no);payRun={driver:'',period:payRun.period,allowance:0,advance:0,deduction:0,employerStat:0,daysWorked:0,note:''};}
 function delPayslip(no){if(!confirm('Delete payslip '+no+'?'))return;data.payslips=data.payslips.filter(x=>x.no!==no);save();}
 function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
   doPrint(`<div class="doc">${coHeader()}<div class="doctype"><div class="t">DRIVER PAYMENT VOUCHER</div><div class="m">No: <b>${esc(p.no)}</b><br>Date: ${p.date}<br>Period: ${esc(p.period)}</div></div></div>
   <div class="billto"><div><div class="lab">Pay To (Driver)</div><div class="v">${esc(p.driver)}</div></div><div><div class="lab">Trips</div><div class="v">${p.tripsCount} trip(s)</div></div></div>
   <table class="items"><thead><tr><th>Description</th><th style="text-align:right">Amount (RM)</th></tr></thead><tbody>
-    <tr><td>Service Fee (${p.tripsCount} trips: fee + loading + Limbang)</td><td style="text-align:right">${p.serviceFee.toFixed(2)}</td></tr>
+    ${p.basic?`<tr><td>Basic salary</td><td style="text-align:right">${p.basic.toFixed(2)}</td></tr>`:''}
+    ${p.daily?`<tr><td>Daily pay (${p.daysWorked||0} days)</td><td style="text-align:right">${p.daily.toFixed(2)}</td></tr>`:''}
+    ${p.tripEarn?`<tr><td>Trip earnings (${p.tripsCount} trips)</td><td style="text-align:right">${p.tripEarn.toFixed(2)}</td></tr>`:''}
+    ${p.comm?`<tr><td>Commission (KK local delivery)</td><td style="text-align:right">${p.comm.toFixed(2)}</td></tr>`:''}
+    ${(!p.basic&&!p.daily&&!p.tripEarn&&!p.comm&&p.serviceFee)?`<tr><td>Service Fee (${p.tripsCount} trips)</td><td style="text-align:right">${p.serviceFee.toFixed(2)}</td></tr>`:''}
     ${p.meal?`<tr><td>Meal allowance</td><td style="text-align:right">${p.meal.toFixed(2)}</td></tr>`:''}
-    ${p.ot?`<tr><td>Overtime</td><td style="text-align:right">${p.ot.toFixed(2)}</td></tr>`:''}
+    ${p.ot?`<tr><td>Overtime (1.5×)</td><td style="text-align:right">${p.ot.toFixed(2)}</td></tr>`:''}
     ${p.allowance?`<tr><td>Allowance</td><td style="text-align:right">${p.allowance.toFixed(2)}</td></tr>`:''}
     ${p.advance?`<tr><td>Less: Advance</td><td style="text-align:right">(${p.advance.toFixed(2)})</td></tr>`:''}
     ${p.deduction?`<tr><td>Less: Statutory EPF/SOCSO/EIS (per HR.my)</td><td style="text-align:right">(${p.deduction.toFixed(2)})</td></tr>`:''}
@@ -983,9 +1002,11 @@ function addLeave(){if(!lvForm.driver){alert('Pick a staff.');return;}if(!lvForm
 function delLeave(id){if(!confirm('Delete this leave record?'))return;data.leaves=data.leaves.filter(x=>x.id!==id);save();}
 function leaveTaken(driver,type,year){return data.leaves.filter(l=>l.driver===driver&&l.type===type&&l.status==='Approved'&&(l.from||'').slice(0,4)===String(year)).reduce((s,l)=>s+(l.days||0),0);}
 let otForm={driver:'',date:todayISO(),hours:0,rate:0,note:''};
-function otSet(k,v){otForm[k]=(k==='hours'||k==='rate')?(parseFloat(v)||0):v;render();}
+function otSet(k,v){otForm[k]=(k==='hours'||k==='rate')?(parseFloat(v)||0):v;
+  if(k==='driver'){const s=data.drivers.find(d=>d.name===v)||{};const hr=s.basicSalary?((+s.basicSalary)/26/8):(s.dailyRate?((+s.dailyRate)/8):0);if(hr)otForm.rate=Math.round(hr*100)/100;}
+  render();}
 function addOT(){if(!otForm.driver){alert('Pick a staff.');return;}
-  const amt=(otForm.hours||0)*(otForm.rate||0);
+  const amt=(otForm.hours||0)*(otForm.rate||0)*1.5;
   data.otRecords.push({id:'O'+Date.now(),driver:otForm.driver,date:otForm.date,hours:otForm.hours||0,rate:otForm.rate||0,amount:amt,note:otForm.note});
   otForm={driver:otForm.driver,date:otForm.date,hours:0,rate:otForm.rate,note:''};save();}
 function delOT(id){if(!confirm('Delete this OT record?'))return;data.otRecords=data.otRecords.filter(x=>x.id!==id);save();}
@@ -1563,6 +1584,11 @@ function render(){
           <div><div class="qf"><label>Annual leave entitlement (days/year)</label><input type="number" step="1" value="${f.annualEnt==null?8:f.annualEnt}" onchange="dvSet('annualEnt',this.value)"></div>
             <div class="qf"><label>Driving license no.</label><input value="${esc(f.licenseNo)}" oninput="dvSet('licenseNo',this.value)"></div>
             <div class="qf"><label>License expiry</label><input type="date" value="${f.licenseExpiry||''}" onchange="dvSet('licenseExpiry',this.value)"></div></div></div></div>
+        <div class="qsec"><div class="qsec-grid"><div class="h">Pay &amp; earnings<p>Tick the income blocks this staff earns. Pay Run adds them up.</p></div>
+          <div><div class="qf"><label>Basic monthly salary (RM)</label><input type="number" step="0.01" value="${f.basicSalary||''}" onchange="dvSet('basicSalary',parseFloat(this.value)||0)" placeholder="0 = none"></div>
+            <div class="qf"><label>Daily rate (RM/day) <span class="desc">part-timer</span></label><input type="number" step="0.01" value="${f.dailyRate||''}" onchange="dvSet('dailyRate',parseFloat(this.value)||0)" placeholder="0 = none"></div></div>
+          <div><div class="qf"><label>Trip earnings</label><label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px"><input type="checkbox" ${f.earnsTrips!==false?'checked':''} onchange="dvSet('earnsTrips',this.checked)"> Earns linehaul trip fees (Trips page)</label></div>
+            <div class="qf"><label>Commission RM / delivery <span class="desc">KK local delivery</span></label><input type="number" step="0.01" value="${f.commRate||''}" onchange="dvSet('commRate',parseFloat(this.value)||0)" placeholder="0 = none"></div></div></div></div>
         <div class="qsec"><div class="qsec-grid"><div class="h">Emergency &amp; notes<p>Who to call, extra notes.</p></div>
           <div><div class="qf"><label>Emergency contact name</label><input value="${esc(f.emgName)}" oninput="dvSet('emgName',this.value)"></div>
             <div class="qf"><label>Emergency contact phone</label><input value="${esc(f.emgPhone)}" oninput="dvSet('emgPhone',this.value)"></div>
@@ -1570,6 +1596,25 @@ function render(){
           <div><div class="qf"><label>Notes</label><textarea oninput="dvSet('notes',this.value)">${esc(f.notes)}</textarea></div></div></div></div>
         <div class="qbar"><button class="btn ghost" onclick="cancelDriver()">Cancel</button><button class="btn" onclick="saveDriver()">Save Staff</button></div>
       </div>`;
+    return;}
+
+  if(curView==='commission'){
+    const f=cmForm;
+    const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${f.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
+    const list=data.commissions.slice().sort((a,b)=>(a.date<b.date?1:-1));
+    const sel=data.drivers.find(d=>d.name===f.driver)||{};const selRate=(+sel.commRate)||0;
+    el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Commission</h1><div class="desc">KK local delivery commission. Rate (RM per delivery) comes from each staff's profile. Month total flows into Pay Run.</div></div></div>
+      <div class="panel" style="padding:16px"><div class="filtergrid" style="grid-template-columns:1.2fr auto auto 1.4fr auto;gap:10px;align-items:end">
+        <div class="fld"><label>Staff</label><select onchange="cmSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
+        <div class="fld"><label>Date</label><input type="date" value="${f.date}" onchange="cmSet('date',this.value)"></div>
+        <div class="fld"><label>Deliveries</label><input type="number" step="1" value="${f.units||''}" onchange="cmSet('units',this.value)" style="width:90px"></div>
+        <div class="fld"><label>Note (opt)</label><input value="${esc(f.note)}" onchange="cmSet('note',this.value)"></div>
+        <div><button class="btn" onclick="addCommission()">＋ Add</button></div>
+      </div><div class="note" style="margin-top:8px">${f.driver?(selRate>0?('Rate RM'+selRate.toFixed(2)+' / delivery · this entry: '+RM((f.units||0)*selRate)):('⚠ '+esc(f.driver)+' has no commission rate set — edit their Staff profile first.')):'Commission rate is set per staff on the Staff profile (Commission RM / delivery).'}</div></div>
+      <div class="panel"><h2 style="padding:14px 18px 0">Commission Records</h2><table><thead><tr><th>Date</th><th>Staff</th><th class="amt">Deliveries</th><th class="amt">Rate</th><th class="amt">Amount</th><th>Note</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${list.map(o=>`<tr><td>${o.date}</td><td>${esc(o.driver)}</td><td class="amt">${o.units}</td><td class="amt">${RM(o.rate)}</td><td class="amt"><b>${RM(o.amount)}</b></td><td>${esc(o.note||'-')}</td>
+        <td style="text-align:right"><button class="mini" onclick="delCommission('${o.id}')">Delete</button></td></tr>`).join('')}
+      </tbody></table>${list.length?'':'<div class="empty">📭<br>No commission records yet.</div>'}</div>`;
     return;}
 
   if(curView==='leave'){
@@ -1604,10 +1649,10 @@ function render(){
         <div class="fld"><label>Staff</label><select onchange="otSet('driver',this.value)"><option value="">— pick —</option>${drvOpts}</select></div>
         <div class="fld"><label>Date</label><input type="date" value="${f.date}" onchange="otSet('date',this.value)"></div>
         <div class="fld"><label>Hours</label><input type="number" step="0.5" value="${f.hours||''}" onchange="otSet('hours',this.value)" style="width:80px"></div>
-        <div class="fld"><label>Rate/hr (RM)</label><input type="number" step="0.01" value="${f.rate||''}" onchange="otSet('rate',this.value)" style="width:100px"></div>
+        <div class="fld"><label>Ordinary rate/hr <span class="desc">×1.5 for OT · auto from salary</span></label><input type="number" step="0.01" value="${f.rate||''}" onchange="otSet('rate',this.value)" style="width:120px"></div>
         <div class="fld"><label>Note (opt)</label><input value="${esc(f.note)}" onchange="otSet('note',this.value)"></div>
         <div><button class="btn" onclick="addOT()">＋ Add</button></div>
-      </div><div class="note" style="margin-top:8px">Amount = hours × rate.${f.hours&&f.rate?(' This entry: '+RM((f.hours||0)*(f.rate||0))):''}</div></div>
+      </div><div class="note" style="margin-top:8px">Amount = hours × ordinary rate × 1.5.${f.hours&&f.rate?(' This entry: '+RM((f.hours||0)*(f.rate||0)*1.5)):''}</div></div>
       <div class="panel"><h2 style="padding:14px 18px 0">OT Records</h2><table><thead><tr><th>Date</th><th>Staff</th><th class="amt">Hours</th><th class="amt">Rate</th><th class="amt">Amount</th><th>Note</th><th style="text-align:right">Action</th></tr></thead><tbody>
       ${list.map(o=>`<tr><td>${o.date}</td><td>${esc(o.driver)}</td><td class="amt">${o.hours}</td><td class="amt">${RM(o.rate)}</td><td class="amt"><b>${RM(o.amount)}</b></td><td>${esc(o.note||'-')}</td>
         <td style="text-align:right"><button class="mini" onclick="delOT('${o.id}')">Delete</button></td></tr>`).join('')}
@@ -1660,7 +1705,7 @@ function render(){
 
   if(curView==='payrun'){
     const drvOpts=data.drivers.filter(d=>d.active!==false).map(d=>`<option ${payRun.driver===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
-    const trips=prTrips();const fee=prServiceFee();const meal=prMeal();const ot=prOT();const net=prNet();const cost=fee+meal+ot+(payRun.allowance||0)+(payRun.employerStat||0);
+    const staff=prStaff();const trips=prTrips();const basic=prBasic();const daily=prDaily();const tripsB=prTripsBase();const comm=prComm();const fee=prServiceFee();const meal=prMeal();const ot=prOT();const net=prNet();const cost=fee+meal+ot+(payRun.allowance||0)+(payRun.employerStat||0);
     el.innerHTML=`<div class="page-head"><div><h1><span class="desc" style="font-weight:400">Payroll / </span>Pay Run</h1><div class="desc">Monthly driver settlement → payment voucher.</div></div></div>
       <div class="panel" style="padding:18px">
         <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:14px">
@@ -1668,10 +1713,14 @@ function render(){
           <div class="fld"><label>Period (month)</label><input type="month" value="${payRun.period}" onchange="prSet('period',this.value)"></div>
         </div>
         ${payRun.driver?`<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px">
-          <div class="row2"><span class="lab">Trips this period</span><b>${trips.length}</b></div>
-          <div class="row2"><span class="lab">Service Fee — base (${trips.length} trips: fee + loading + Limbang)</span><b>${RM(fee)}</b></div>
+          ${basic?`<div class="row2"><span class="lab">Basic salary (monthly)</span><b>${RM(basic)}</b></div>`:''}
+          ${(staff.dailyRate>0)?`<div class="row2"><span class="lab">Daily pay (${payRun.daysWorked||0} days × ${RM(staff.dailyRate||0)})</span><b>${RM(daily)}</b></div>`:''}
+          ${(staff.earnsTrips!==false)?`<div class="row2"><span class="lab">Trip earnings (${trips.length} trips: fee + loading + Limbang)</span><b>${RM(tripsB)}</b></div>`:''}
+          ${comm?`<div class="row2"><span class="lab">Commission — KK local delivery</span><b>${RM(comm)}</b></div>`:''}
           ${meal?`<div class="row2"><span class="lab">Meal allowance (non-EPF)</span><b>${RM(meal)}</b></div>`:''}
-          ${ot?`<div class="row2"><span class="lab">Overtime this period</span><b>${RM(ot)}</b></div>`:''}
+          ${ot?`<div class="row2"><span class="lab">Overtime (1.5×)</span><b>${RM(ot)}</b></div>`:''}
+          ${(staff.dailyRate>0)?`<div class="fld" style="margin-top:12px"><label>Days worked this month (daily-paid)</label><input type="number" step="0.5" value="${payRun.daysWorked||''}" onchange="prSet('daysWorked',this.value)" style="width:140px"></div>`:''}
+          <div class="note" style="margin-top:10px">EPF base to key into HR.my = all earnings above except Meal allowance.</div>
           <div class="filtergrid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
             <div class="fld"><label>Allowance (+)</label><input type="number" step="0.01" value="${payRun.allowance||''}" onchange="prSet('allowance',this.value)"></div>
             <div class="fld"><label>Advance (−)</label><input type="number" step="0.01" value="${payRun.advance||''}" onchange="prSet('advance',this.value)"></div>
@@ -1682,7 +1731,7 @@ function render(){
           </div>
           <div class="fld" style="margin-top:12px"><label>Note</label><input value="${esc(payRun.note)}" onchange="prSet('note',this.value)"></div>
           <div class="row2" style="margin-top:14px;font-size:18px"><span><b>Net Pay to Driver</b></span><b style="color:var(--ok)">${RM(net)}</b></div>
-          <div class="row2" style="margin-top:4px;color:var(--muted)"><span>Company cost (service fee + allowance + employer statutory)</span><b>${RM(cost)}</b></div>
+          <div class="row2" style="margin-top:4px;color:var(--muted)"><span>Company cost (all earnings + employer statutory)</span><b>${RM(cost)}</b></div>
           <div style="margin-top:14px"><button class="btn" onclick="generatePayslip()">Generate Payment Voucher</button></div>
         </div>`:`<p class="note" style="margin-top:12px">Pick a driver and period to compute their service fee.</p>`}
       </div>
