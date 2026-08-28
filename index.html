@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.45</title>
+<title>DHExpress v3.46</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -245,7 +245,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.45</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.46</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="navgroup" data-grp="Sales"><div class="grp" onclick="toggleGroup('Sales')"><span>Sales</span><span class="chev">▾</span></div>
@@ -328,7 +328,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.45';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.46';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -954,7 +954,7 @@ function listActions(html){return `<td style="text-align:right;white-space:nowra
 
 /* ===== Payroll (driver trip service fee) ===== */
 let drvForm=null;
-function drvBlank(id){return{id:id||('D'+Date.now()),name:'',active:true,nric:'',phone:'',email:'',address:'',position:'Driver',startDate:'',confirmDate:'',licenseNo:'',licenseExpiry:'',emgName:'',emgPhone:'',annualEnt:8,basicSalary:0,dailyRate:0,earnsTrips:true,commRate:0,bank:'',notes:''};}
+function drvBlank(id){return{id:id||('D'+Date.now()),name:'',active:true,nric:'',phone:'',email:'',address:'',position:'Driver',startDate:'',confirmDate:'',licenseNo:'',licenseExpiry:'',emgName:'',emgPhone:'',annualEnt:8,basicSalary:0,dailyRate:0,earnsTrips:true,commRate:0,bank:'',bankNo:'',notes:''};}
 function payLabel(d){const p=[];if((+d.basicSalary)>0)p.push('Monthly '+RM(d.basicSalary));if((+d.dailyRate)>0)p.push('Daily '+RM(d.dailyRate));if(d.earnsTrips!==false)p.push('Per-trip');if((+d.commRate)>0)p.push('+Comm '+RM(d.commRate)+'/unit');return p.length?p.join(' · '):'—';}
 function newDriver(){drvForm=Object.assign(drvBlank(),{_new:true});curView='drvform';render();}
 function editDriver(id){const d=data.drivers.find(x=>x.id===id);if(!d)return;drvForm=Object.assign(drvBlank(d.id),d,{_new:false});curView='drvform';render();}
@@ -1042,7 +1042,7 @@ function skillPdfPayslip(no,btn){
   add('Allowance',p.allowance);
   const ded=[];if(p.deduction)ded.push({label:'Statutory EPF/SOCSO/EIS (per HR.my)',amount:p.deduction});if(p.advance)ded.push({label:'Salary Advance',amount:p.advance});
   const spec={doc_type:'payment_voucher',mode:'salary',number:p.no,date:fmtLongDate(p.date),payment_method:'Bank Transfer',period:monthLabel(p.period),payee:[p.driver].concat(st.position?[st.position]:[]),items:items,deductions:ded};
-  if(st.bank)spec.payee_bank={bank:st.bank,account_name:p.driver,account_no:''};
+  if(st.bank||st.bankNo)spec.payee_bank={bank:st.bank||'',account_name:p.driver,account_no:st.bankNo||''};
   fetchSkillPdf(spec,btn);
 }
 function skillPdfSupplier(billNo,vno,btn){
@@ -1698,7 +1698,7 @@ function render(){
             <div class="qf"><label>NRIC / IC no.</label><input value="${esc(f.nric)}" oninput="dvSet('nric',this.value)" placeholder="e.g. 900101-12-5678"></div>
             <div class="qf"><label>Phone</label><input value="${esc(f.phone)}" oninput="dvSet('phone',this.value)"></div>
             <div class="qf"><label>Email</label><input value="${esc(f.email)}" oninput="dvSet('email',this.value)"></div></div>
-          <div><div class="qf"><label>Address</label><textarea oninput="dvSet('address',this.value)">${esc(f.address)}</textarea></div><div class="qf"><label>Bank account (for salary)</label><input value="${esc(f.bank)}" oninput="dvSet('bank',this.value)" placeholder="Bank name + account no."></div></div></div></div>
+          <div><div class="qf"><label>Address</label><textarea oninput="dvSet('address',this.value)">${esc(f.address)}</textarea></div><div class="qf"><label>Bank name (for salary)</label><input value="${esc(f.bank)}" oninput="dvSet('bank',this.value)" placeholder="e.g. Maybank"></div><div class="qf"><label>Account no.</label><input value="${esc(f.bankNo)}" oninput="dvSet('bankNo',this.value)" placeholder="e.g. 5123 4567 8901"></div></div></div></div>
         <div class="qsec"><div class="qsec-grid"><div class="h">Employment<p>Role and key dates.</p></div>
           <div><div class="qf"><label>Position</label><input value="${esc(f.position)}" oninput="dvSet('position',this.value)"></div>
             <div class="qf"><label>Start work date</label><input type="date" value="${f.startDate||''}" onchange="dvSet('startDate',this.value)"></div>
