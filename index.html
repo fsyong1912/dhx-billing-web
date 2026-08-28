@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.42</title>
+<title>DHExpress v3.44</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -245,7 +245,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.42</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.44</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="navgroup" data-grp="Sales"><div class="grp" onclick="toggleGroup('Sales')"><span>Sales</span><span class="chev">▾</span></div>
@@ -328,7 +328,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.42';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.44';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -546,7 +546,10 @@ function payBill(no){const b=data.bills.find(x=>x.no===no);if(!b||b.status==='vo
   const out=billOut(b);const v=prompt('Amount paid for '+no+' (outstanding '+RM(out)+'):',out.toFixed(2));if(v===null)return;
   const amt=parseFloat(v)||0;if(amt<=0)return;
   const m=(prompt('Payment method — Cash / Bank Transfer / Cheque / DuitNow:','Bank Transfer')||'').trim();
-  b.paid=(b.paid||0)+amt;const vno='PV.DHE.'+YR+'.'+pad3(nextPVNo());b.payments=b.payments||[];b.payments.push({no:vno,date:todayISO(),amount:amt,method:m});
+  const pdate=(prompt('Payment date (YYYY-MM-DD):',todayISO())||todayISO()).trim();
+  const autoNo='PV.DHE.'+YR+'.'+pad3(nextPVNo());
+  const vno=((prompt('Voucher no. (keep as-is for a new one; type the original, e.g. PV.DHE.'+YR+'.001, when back-filling an old bill):',autoNo)||autoNo).trim())||autoNo;
+  b.paid=(b.paid||0)+amt;b.payments=b.payments||[];b.payments.push({no:vno,date:pdate,amount:amt,method:m});
   b.status=(billOut(b)<=0.001?'paid':(b.paid>0?'partial':'unpaid'));save();printPayVoucher(no,vno);}
 function printPayVoucher(billNo,vno){const b=data.bills.find(x=>x.no===billNo);if(!b)return;const rec=(b.payments||[]).find(x=>x.no===vno)||b.payments[b.payments.length-1];
   doPrint(`<div class="doc">${coHeader()}<div class="doctype"><div class="t">PAYMENT VOUCHER</div><div class="m">Voucher No: <b>${esc(rec.no)}</b><br>Date: ${rec.date}<br>Payment Method: ${esc(rec.method||'Bank Transfer')}</div></div></div>
@@ -933,7 +936,7 @@ function filteredBillPayments(){let list=allBillPayments();const f=spFilter;
 async function saveSettings(){const c=data.company;
   c.name=s_name.value.trim()||'DHEXPRESS LOGISTICS SDN BHD';c.reg=s_reg.value.trim();c.phone=s_phone.value.trim();c.email=s_email.value.trim();
   c.addr=s_addr.value.trim();c.sstreg=s_sstreg.value;c.sstno=s_sstno.value.trim();c.bank=s_bank.value.trim();
-  c.terms=parseInt(s_terms.value)||0;c.nextInv=parseInt(s_nextinv.value)||1;
+  c.terms=parseInt(s_terms.value)||0;c.nextInv=parseInt(s_nextinv.value)||1;c.nextPV=parseInt(s_nextpv.value)||1;c.nextPayW=parseInt(s_nextpayw.value)||1;
   const ok=await save();alert(ok?'Settings saved.':'NOT saved. Your login may have expired, or another tab has newer data. Reload the page and try again.');}
 
 /* ---------- RENDER ---------- */
@@ -993,8 +996,8 @@ function addCommission(){if(!cmForm.driver){alert('Pick an employee.');return;}
   cmForm={driver:cmForm.driver,date:cmForm.date,units:1,note:''};save();}
 function delCommission(id){if(!confirm('Delete this commission record?'))return;data.commissions=data.commissions.filter(x=>x.id!==id);save();}
 function prNet(){return prServiceFee()+prMeal()+prOT()+(payRun.allowance||0)-(payRun.advance||0)-(payRun.deduction||0);}
-function nextPVNo(){let mx=0;(data.bills||[]).forEach(b=>(b.payments||[]).forEach(pm=>{const t=''+pm.no;if(/\.W\./.test(t))return;const m=t.match(/\.(\d{4})\.(\d+)$/);if(m&&m[1]===String(YR)){const n=parseInt(m[2]);if(n>mx)mx=n;}}));return mx+1;}
-function nextPayNoW(){let mx=0;(data.payslips||[]).forEach(p=>{const m=(''+p.no).match(/\.W\.(\d{4})\.(\d+)$/);if(m&&m[1]===String(YR)){const n=parseInt(m[2]);if(n>mx)mx=n;}});return mx+1;}
+function nextPVNo(){let mx=0;(data.bills||[]).forEach(b=>(b.payments||[]).forEach(pm=>{const t=''+pm.no;if(/\.W\./.test(t))return;const m=t.match(/\.(\d{4})\.(\d+)$/);if(m&&m[1]===String(YR)){const n=parseInt(m[2]);if(n>mx)mx=n;}}));return Math.max(mx+1,parseInt(data.company.nextPV)||1);}
+function nextPayNoW(){let mx=0;(data.payslips||[]).forEach(p=>{const m=(''+p.no).match(/\.W\.(\d{4})\.(\d+)$/);if(m&&m[1]===String(YR)){const n=parseInt(m[2]);if(n>mx)mx=n;}});return Math.max(mx+1,parseInt(data.company.nextPayW)||1);}
 function generatePayslip(){if(!payRun.driver){alert('Pick an employee.');return;}const trips=prTrips();const fee=prServiceFee();const meal=prMeal();const ot=prOT();const net=prNet();
   if(fee<=0&&meal<=0&&ot<=0&&!confirm('No earnings computed for this employee/period. Continue anyway?'))return;
   const rec={no:'PV.DHE.W.'+YR+'.'+pad3(nextPayNoW()),date:todayISO(),driver:payRun.driver,period:payRun.period,tripsCount:trips.length,serviceFee:fee,basic:prBasic(),daily:prDaily(),tripEarn:prTripsBase(),comm:prComm(),daysWorked:(payRun.workDates||[]).length,meal:meal,ot:ot,allowance:payRun.allowance||0,advance:payRun.advance||0,deduction:payRun.deduction||0,employerStat:payRun.employerStat||0,net:net,note:payRun.note||''};
@@ -1902,10 +1905,11 @@ function render(){
         <div class="field two"><div><label>SST registered?</label><select id="s_sstreg"><option value="no">No — not registered</option><option value="yes">Yes</option></select></div><div><label>SST reg no. (if yes)</label><input id="s_sstno"></div></div>
         <div class="field"><label>Payment details (Bank / DuitNow)</label><textarea id="s_bank"></textarea></div>
         <div class="field two"><div><label>Payment terms (days)</label><input id="s_terms" type="number" min="0"></div><div><label>Next invoice no. → INV.DHE.${YR}.___</label><input id="s_nextinv" type="number" min="1"></div></div>
-        <p class="note">⚠️ Set <b>Next invoice no.</b> to continue from your last issued number so nothing clashes.</p>
+        <div class="field two"><div><label>Next supplier PV no. → PV.DHE.${YR}.___</label><input id="s_nextpv" type="number" min="1"></div><div><label>Next worker/salary PV no. → PV.DHE.W.${YR}.___</label><input id="s_nextpayw" type="number" min="1"></div></div>
+        <p class="note">⚠️ Set the <b>Next no.</b> fields to continue from your last issued number so nothing clashes. Supplier PV and worker/salary PV run as separate series.</p>
         <div class="modal-actions"><button class="btn-save" onclick="saveSettings()">Save settings</button></div>
       </div>`;
-    s_name.value=c.name||'';s_reg.value=c.reg||'';s_phone.value=c.phone||'';s_email.value=c.email||'';s_addr.value=c.addr||'';s_sstreg.value=c.sstreg||'no';s_sstno.value=c.sstno||'';s_bank.value=c.bank||'';s_terms.value=c.terms==null?30:c.terms;s_nextinv.value=c.nextInv||1;
+    s_name.value=c.name||'';s_reg.value=c.reg||'';s_phone.value=c.phone||'';s_email.value=c.email||'';s_addr.value=c.addr||'';s_sstreg.value=c.sstreg||'no';s_sstno.value=c.sstno||'';s_bank.value=c.bank||'';s_terms.value=c.terms==null?30:c.terms;s_nextinv.value=c.nextInv||1;s_nextpv.value=c.nextPV||1;s_nextpayw.value=c.nextPayW||1;
     return;}
 }
 overlay.addEventListener('click',e=>{if(e.target.id==='overlay')closeModal();});
