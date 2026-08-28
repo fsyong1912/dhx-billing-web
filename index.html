@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.41</title>
+<title>DHExpress v3.42</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -245,7 +245,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.41</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.42</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="navgroup" data-grp="Sales"><div class="grp" onclick="toggleGroup('Sales')"><span>Sales</span><span class="chev">▾</span></div>
@@ -328,7 +328,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.41';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.42';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -487,6 +487,12 @@ function saveInv(){if(!invForm.cust.trim()){alert('Enter a customer.');return;}
 let billForm=null;
 function blankBill(){return{no:'BILL.DHE.'+YR+'.'+pad3(data.company.nextBill||1),ref:'',date:todayISO(),description:'',internalNote:'',supplier:'',supAddr:'',category:'Others',taxMode:'exclusive',items:[{desc:'',qty:1,price:0,disc:0,taxPct:0}],useRounding:false,rounding:0,creditDays:(data.company.terms||30),remarks:'',docStatus:'ready',_edit:null};}
 function newBillForm(){billForm=blankBill();curView='billform';render();}
+function normDate(s){s=String(s).trim();if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  const mo={jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+  let m=s.match(/([A-Za-z]{3,})\.?\s+(\d{1,2}),?\s+(\d{4})/);if(m){const mm=mo[m[1].slice(0,3).toLowerCase()];if(mm)return m[3]+'-'+mm+'-'+String(m[2]).padStart(2,'0');}
+  m=s.match(/(\d{1,2})\s+([A-Za-z]{3,})\.?\s+(\d{4})/);if(m){const mm=mo[m[2].slice(0,3).toLowerCase()];if(mm)return m[3]+'-'+mm+'-'+String(m[1]).padStart(2,'0');}
+  m=s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);if(m)return m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
+  return s;}
 function importBillDraft(){
   const box=document.getElementById('billImportBox');if(!box)return;
   let raw=(box.value||'').trim();if(!raw){alert("Paste Billy's draft JSON first.");return;}
@@ -494,17 +500,26 @@ function importBillDraft(){
   const m=raw.match(/\{[\s\S]*\}/);if(m)raw=m[0];
   let d;try{d=JSON.parse(raw);}catch(e){alert('That does not look like valid draft JSON.\n'+e);return;}
   if(!billForm)billForm=blankBill();
-  if(d.supplier!=null)billForm.supplier=String(d.supplier);
-  if(d.supAddr!=null)billForm.supAddr=String(d.supAddr);
-  if(d.ref!=null)billForm.ref=String(d.ref);
-  if(d.date!=null)billForm.date=String(d.date);
-  if(d.description!=null)billForm.description=String(d.description);
-  if(d.remarks!=null)billForm.remarks=String(d.remarks);
-  if(d.category!=null){const cats=['Fuel/Diesel','Toll','Ferry','ICQS','Repair/Maintenance','Driver Fee','Office','Rental','Others'];billForm.category=cats.includes(d.category)?d.category:'Others';}
-  if(d.taxMode!=null)billForm.taxMode=(String(d.taxMode).toLowerCase()==='inclusive'?'inclusive':'exclusive');
-  if(d.creditDays!=null)billForm.creditDays=parseInt(d.creditDays)||0;
-  if(Array.isArray(d.items)&&d.items.length){
-    billForm.items=d.items.map(it=>({desc:String(it.desc!=null?it.desc:(it.description||'')),qty:parseFloat(it.qty)||0,price:parseFloat(it.price)||0,disc:parseFloat(it.disc)||0,taxPct:parseFloat(it.taxPct!=null?it.taxPct:(it.tax!=null?it.tax:0))||0}));
+  const pick=(o,keys)=>{for(const k of keys){if(o&&o[k]!=null&&o[k]!=='')return o[k];}return null;};
+  const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
+  let v;
+  if((v=pick(d,['supplier','supplier_name','vendor','payee','supplierName']))!=null)billForm.supplier=String(v);
+  if((v=pick(d,['supAddr','supplier_address','address','supplierAddress']))!=null)billForm.supAddr=String(v);
+  if((v=pick(d,['ref','invoice_no','inv_no','invoiceNo','invoice_number','supplier_inv_ref','supplierInvRef','quotation_no','quotationNo','doc_no']))!=null)billForm.ref=String(v);
+  if((v=pick(d,['date','bill_date','billDate','invoice_date','doc_date']))!=null)billForm.date=normDate(v);
+  if((v=pick(d,['description','desc','summary']))!=null)billForm.description=String(v);
+  if((v=pick(d,['remarks','notes','remark','note']))!=null)billForm.remarks=String(v);
+  if((v=pick(d,['category','cat']))!=null){const cats=['Fuel/Diesel','Toll','Ferry','ICQS','Repair/Maintenance','Driver Fee','Office','Rental','Others'];billForm.category=cats.includes(String(v))?String(v):'Others';}
+  if((v=pick(d,['taxMode','tax_mode','taxmode']))!=null)billForm.taxMode=(String(v).toLowerCase().startsWith('inc')?'inclusive':'exclusive');
+  if((v=pick(d,['creditDays','credit_term','credit_days','creditTerm','terms','term']))!=null)billForm.creditDays=parseInt(v)||0;
+  const rawItems=pick(d,['items','line_items','lineItems','lines'])||[];
+  if(Array.isArray(rawItems)&&rawItems.length){
+    billForm.items=rawItems.map(it=>{
+      const qty=num(pick(it,['qty','quantity','q']))||1;
+      let price=num(pick(it,['price','unit_price','unitPrice','rate','amount_each','unitprice']));
+      if(!price){const amt=num(pick(it,['amount','total','line_total','lineTotal','subtotal']));if(amt)price=amt/qty;}
+      return{desc:String(pick(it,['desc','description','name','item','particulars'])||''),qty:qty,price:price,disc:num(pick(it,['disc','discount'])),taxPct:num(pick(it,['taxPct','tax','tax_pct','taxRate','tax_percent','sst']))};
+    });
   }
   if(!billForm.supAddr&&billForm.supplier){const c=data.contacts.find(x=>(x.name||'').toLowerCase()===billForm.supplier.toLowerCase());if(c)billForm.supAddr=c.address||'';}
   render();
