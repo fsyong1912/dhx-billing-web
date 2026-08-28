@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.37</title>
+<title>DHExpress v3.39</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -245,7 +245,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.37</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.39</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="navgroup" data-grp="Sales"><div class="grp" onclick="toggleGroup('Sales')"><span>Sales</span><span class="chev">▾</span></div>
@@ -319,6 +319,8 @@
   <div class="field"><label>Attention (contact person)</label><input id="cAttn"></div>
   <div class="field"><label>Address</label><textarea id="cAddr"></textarea></div>
   <div class="field two"><div><label>Phone</label><input id="cPhone"></div><div><label>Email</label><input id="cEmail"></div></div>
+  <div class="field"><label>Bank name <span class="hint">(shows on supplier payment vouchers)</span></label><input id="cBank" placeholder="e.g. Hong Leong Bank Berhad"></div>
+  <div class="field two"><div><label>Account name</label><input id="cBankName"></div><div><label>Account no.</label><input id="cBankNo"></div></div>
   <div class="modal-actions"><button class="btn-cancel" onclick="closeContact()">Cancel</button><button class="btn-save" onclick="saveContact()">Save</button></div>
 </div></div>
 
@@ -326,7 +328,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.37';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.39';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -765,11 +767,11 @@ function filteredDOs(){let list=data.deliveryOrders.slice();const f=doFilter;
   return list;}
 /* Payments (aggregated receipts) */
 let editingContactId=null,ctFilter='';
-function newContact(){editingContactId=null;cN.value='';cAttn.value='';cAddr.value='';cPhone.value='';cEmail.value='';document.getElementById('cModalTitle').textContent='New contact';cOverlay.classList.add('show');}
-function editContact(id){const c=data.contacts.find(x=>x.id===id);if(!c)return;editingContactId=id;cN.value=c.name||'';cAttn.value=c.attn||'';cAddr.value=c.address||'';cPhone.value=c.phone||'';cEmail.value=c.email||'';document.getElementById('cModalTitle').textContent='Edit contact';cOverlay.classList.add('show');}
+function newContact(){editingContactId=null;cN.value='';cAttn.value='';cAddr.value='';cPhone.value='';cEmail.value='';cBank.value='';cBankName.value='';cBankNo.value='';document.getElementById('cModalTitle').textContent='New contact';cOverlay.classList.add('show');}
+function editContact(id){const c=data.contacts.find(x=>x.id===id);if(!c)return;editingContactId=id;cN.value=c.name||'';cAttn.value=c.attn||'';cAddr.value=c.address||'';cPhone.value=c.phone||'';cEmail.value=c.email||'';cBank.value=c.bank||'';cBankName.value=c.bankName||'';cBankNo.value=c.bankNo||'';document.getElementById('cModalTitle').textContent='Edit contact';cOverlay.classList.add('show');}
 function closeContact(){cOverlay.classList.remove('show');}
 function saveContact(){const name=cN.value.trim();if(!name){alert('Enter a name.');return;}
-  const obj={name,attn:cAttn.value.trim(),address:cAddr.value.trim(),phone:cPhone.value.trim(),email:cEmail.value.trim()};
+  const obj={name,attn:cAttn.value.trim(),address:cAddr.value.trim(),phone:cPhone.value.trim(),email:cEmail.value.trim(),bank:cBank.value.trim(),bankName:cBankName.value.trim(),bankNo:cBankNo.value.trim()};
   if(editingContactId){const ix=data.contacts.findIndex(x=>x.id===editingContactId);if(ix>=0){obj.id=editingContactId;data.contacts[ix]=obj;}}
   else{obj.id='C'+Date.now()+Math.floor(Math.random()*1000);data.contacts.push(obj);}
   editingContactId=null;closeContact();save();}
@@ -997,8 +999,15 @@ function skillPdfSupplier(billNo,vno,btn){
   const b=data.bills.find(x=>x.no===billNo);if(!b)return;
   const rec=(b.payments||[]).find(x=>x.no===vno)||(b.payments||[])[(b.payments||[]).length-1];if(!rec)return;
   const payee=[b.supplier].concat((b.supAddr||'').split('\n').filter(Boolean));
-  const items=[{date:fmtLongDate(rec.date),ref:b.ref||'',description:'Payment against Bill '+b.no+(b.ref?' (Supplier Inv '+b.ref+')':''),amount:rec.amount}];
-  const spec={doc_type:'payment_voucher',mode:'supplier',number:rec.no,date:fmtLongDate(rec.date),payment_method:rec.method||'Bank Transfer',payee:payee,items:items};
+  const items=(b.items||[]).map(it=>({date:fmtLongDate(b.date),ref:b.ref||'',description:it.desc,amount:(it.qty||0)*(it.price||0)-(it.disc||0)}));
+  if((b.sst||0)>0)items.push({date:'',ref:'',description:'SST',amount:b.sst});
+  if(!items.length)items.push({date:fmtLongDate(b.date),ref:b.ref||'',description:'Payment against Bill '+b.no+(b.ref?' (Supplier Inv '+b.ref+')':''),amount:rec.amount});
+  const gross=items.reduce((s,x)=>s+x.amount,0);
+  const ded=[];const bal=gross-rec.amount;
+  if(bal>0.005)ded.push({label:'Balance not settled by this voucher',amount:bal});
+  const sc=data.contacts.find(c=>c.name===b.supplier);
+  const spec={doc_type:'payment_voucher',mode:'supplier',number:rec.no,date:fmtLongDate(rec.date),payment_method:rec.method||'Bank Transfer',payee:payee,items:items,deductions:ded};
+  if(sc&&(sc.bank||sc.bankNo))spec.payee_bank={bank:sc.bank||'',account_name:sc.bankName||b.supplier,account_no:sc.bankNo||''};
   fetchSkillPdf(spec,btn);
 }
 function printPayslip(no){const p=data.payslips.find(x=>x.no===no);if(!p)return;
