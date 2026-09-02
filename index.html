@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DHExpress v3.56</title>
+<title>DHExpress v3.58</title>
 <style>
   :root{
     --green:#3644DB;--green-dark:#141F45;--green-soft:#EAECFB;
@@ -245,7 +245,7 @@
 </div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.56</small></div></div>
+    <div class="brand"><span class="logo">DH</span><div>DHExpress<small id="verLabel">v3.58</small></div></div>
     <nav class="nav" id="nav">
       <a class="active" data-view="dash"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard</a>
       <div class="navgroup" data-grp="Sales"><div class="grp" onclick="toggleGroup('Sales')"><span>Sales</span><span class="chev">▾</span></div>
@@ -287,7 +287,7 @@
 <!-- MODAL -->
 <div class="overlay" id="overlay"><div class="modal">
   <h3 id="mTitle"></h3><p class="hint" id="mHint"></p>
-  <div class="field" id="fCustomer"><label id="lCustomer">Bill to (customer)</label><input id="iCustomer" placeholder="Customer name"></div>
+  <div class="field" id="fCustomer"><label id="lCustomer">Bill to (customer)</label><select id="iCustomer"></select></div>
   <div class="field" id="fCustAddr"><label>Customer address / contact (optional)</label><textarea id="iCustAddr"></textarea></div>
   <div class="field hidden" id="fRef"><label>Against invoice</label><select id="iRef"></select></div>
   <div class="field hidden" id="fSupplier"><label>Paid to (supplier)</label><input id="iSupplier" placeholder="Supplier / payee"></div>
@@ -321,6 +321,8 @@
   <div class="field"><label>Attention (contact person)</label><input id="cAttn"></div>
   <div class="field"><label>Address</label><textarea id="cAddr"></textarea></div>
   <div class="field two"><div><label>Phone</label><input id="cPhone"></div><div><label>Email</label><input id="cEmail"></div></div>
+  <div class="field"><label>NRIC <span class="hint">(for individual suppliers)</span></label><input id="cNric" placeholder="e.g. 900101-12-5678"></div>
+  <div class="field"><label>NRIC copy <span class="hint">image, auto-compressed. A copy only, your filing stays the master.</span></label><div id="cNricPrev" style="margin-bottom:6px"></div><input type="file" id="cNricFile" accept="image/*" onchange="pickNricCopy(this)"></div>
   <div class="field"><label>Bank name <span class="hint">(shows on supplier payment vouchers)</span></label><input id="cBank" placeholder="e.g. Hong Leong Bank Berhad"></div>
   <div class="field two"><div><label>Account name</label><input id="cBankName"></div><div><label>Account no.</label><input id="cBankNo"></div></div>
   <div class="modal-actions"><button class="btn-cancel" onclick="closeContact()">Cancel</button><button class="btn-save" onclick="saveContact()">Save</button></div>
@@ -340,7 +342,7 @@
 
 <script>
 const KEY='dhx-billing-v3';const YR=new Date().getFullYear();let mem=null;let loadedRev=0;
-const APP_VERSION='3.56';const APP_BUILD='2026-08-11';
+const APP_VERSION='3.58';const APP_BUILD='2026-08-11';
 try{document.title='DHExpress v'+APP_VERSION;var _vl=document.getElementById('verLabel');if(_vl)_vl.textContent='v'+APP_VERSION;}catch(e){}
 function showGate(){const g=document.getElementById('loginGate');if(g)g.style.display='grid';const el=document.getElementById('lgPass');if(el){el.value='';el.focus();}}
 function hideGate(){const g=document.getElementById('loginGate');if(g)g.style.display='none';}
@@ -416,7 +418,7 @@ document.getElementById('nav').addEventListener('click',e=>{const a=e.target.clo
 function quickNew(){if(curView==='quotation'||curView==='quoteform')return newQuoteForm();if(curView==='invoice'||curView==='invform')return newInvForm();if(curView==='creditnote'||curView==='cnform')return newCnForm();if(curView==='bills'||curView==='billform')return newBillForm();if(curView==='deliveryorders'||curView==='doform')return newDOForm();const map={purchase:'expense'};if(map[curView])return openModal(map[curView]);return newInvForm();}
 
 /* ---------- MODAL ---------- */
-function openModal(type){setType(type);iDate.value=todayISO();overlay.classList.add('show');}
+function openModal(type){setType(type);iDate.value=todayISO();iCustomer.innerHTML='<option value="">— pick customer —</option>'+data.customers.map(c=>`<option value="${esc(c.name)}">${c.code?esc(c.code)+'  ':''}${esc(c.name)}</option>`).join('');overlay.classList.add('show');}
 /* ===== Bukku-style Quotation form ===== */
 let quoteForm=null;
 function blankQuote(){return{no:'QT/DH/'+YR+'/'+pad3(data.company.nextQuo),ref:'',date:todayISO(),title:'',description:'',internalNote:'',
@@ -828,11 +830,16 @@ function filteredDOs(){let list=data.deliveryOrders.slice();const f=doFilter;
   return list;}
 /* Payments (aggregated receipts) */
 let editingContactId=null,ctFilter='';
-function newContact(){editingContactId=null;cN.value='';cAttn.value='';cAddr.value='';cPhone.value='';cEmail.value='';cBank.value='';cBankName.value='';cBankNo.value='';supJson.value='';document.getElementById('cModalTitle').textContent='New supplier';cOverlay.classList.add('show');}
-function editContact(id){const c=data.contacts.find(x=>x.id===id);if(!c)return;editingContactId=id;cN.value=c.name||'';cAttn.value=c.attn||'';cAddr.value=c.address||'';cPhone.value=c.phone||'';cEmail.value=c.email||'';cBank.value=c.bank||'';cBankName.value=c.bankName||'';cBankNo.value=c.bankNo||'';supJson.value='';document.getElementById('cModalTitle').textContent='Edit supplier';cOverlay.classList.add('show');}
+function newContact(){editingContactId=null;cN.value='';cAttn.value='';cAddr.value='';cPhone.value='';cEmail.value='';cBank.value='';cBankName.value='';cBankNo.value='';supJson.value='';cNric.value='';_nricCopy='';const _nf=document.getElementById('cNricFile');if(_nf)_nf.value='';renderNricPrev();document.getElementById('cModalTitle').textContent='New supplier';cOverlay.classList.add('show');}
+function editContact(id){const c=data.contacts.find(x=>x.id===id);if(!c)return;editingContactId=id;cN.value=c.name||'';cAttn.value=c.attn||'';cAddr.value=c.address||'';cPhone.value=c.phone||'';cEmail.value=c.email||'';cBank.value=c.bank||'';cBankName.value=c.bankName||'';cBankNo.value=c.bankNo||'';supJson.value='';cNric.value=c.nric||'';_nricCopy=c.nricCopy||'';const _nf=document.getElementById('cNricFile');if(_nf)_nf.value='';renderNricPrev();document.getElementById('cModalTitle').textContent='Edit supplier';cOverlay.classList.add('show');}
 function closeContact(){cOverlay.classList.remove('show');}
+let _nricCopy='';
+function renderNricPrev(){const p=document.getElementById('cNricPrev');if(!p)return;p.innerHTML=_nricCopy?`<img src="${_nricCopy}" style="max-width:150px;max-height:100px;border:1px solid var(--line);border-radius:6px;display:block"><button class="mini" style="margin-top:4px" onclick="removeNricCopy()">Remove copy</button>`:'<span class="hint">No copy attached.</span>';}
+function removeNricCopy(){_nricCopy='';const fi=document.getElementById('cNricFile');if(fi)fi.value='';renderNricPrev();}
+function pickNricCopy(input){const f=input.files&&input.files[0];if(!f)return;const rd=new FileReader();rd.onload=e=>{const img=new Image();img.onload=()=>{const max=1000;let w=img.width,h=img.height;if(w>max||h>max){const r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);_nricCopy=cv.toDataURL('image/jpeg',0.7);renderNricPrev();};img.src=e.target.result;};rd.readAsDataURL(f);}
+function viewNricCopy(id){const c=data.contacts.find(x=>x.id===id);if(!c||!c.nricCopy)return;const w=window.open();if(w)w.document.write('<img src="'+c.nricCopy+'" style="max-width:100%">');}
 function saveContact(){const name=cN.value.trim();if(!name){alert('Enter a name.');return;}
-  const obj={name,attn:cAttn.value.trim(),address:cAddr.value.trim(),phone:cPhone.value.trim(),email:cEmail.value.trim(),bank:cBank.value.trim(),bankName:cBankName.value.trim(),bankNo:cBankNo.value.trim()};
+  const obj={name,attn:cAttn.value.trim(),address:cAddr.value.trim(),phone:cPhone.value.trim(),email:cEmail.value.trim(),bank:cBank.value.trim(),bankName:cBankName.value.trim(),bankNo:cBankNo.value.trim(),nric:cNric.value.trim(),nricCopy:_nricCopy||''};
   if(editingContactId){const ix=data.contacts.findIndex(x=>x.id===editingContactId);if(ix>=0){obj.id=editingContactId;obj.code=data.contacts[ix].code||nextSupCode(name);data.contacts[ix]=obj;}}
   else{obj.id='C'+Date.now()+Math.floor(Math.random()*1000);obj.code=nextSupCode(name);data.contacts.push(obj);}
   editingContactId=null;closeContact();save();}
@@ -876,8 +883,8 @@ function importSupplierJson(){let raw=(supJson.value||'').trim();if(!raw){alert(
 function ctStore(v){ctFilter=v;}
 function ctApply(){render();}
 function filteredContacts(){const s=ctFilter.toLowerCase();return data.contacts.filter(c=>!s||(c.name||'').toLowerCase().includes(s)||(c.phone||'').toLowerCase().includes(s)||(c.email||'').toLowerCase().includes(s));}
-function contactOptions(){return '<option value="">— pick saved supplier —</option>'+data.contacts.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');}
-function customerOptions(){return '<option value="">— pick saved customer —</option>'+data.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');}
+function contactOptions(sel){return '<option value="">— pick supplier —</option>'+data.contacts.map(c=>`<option value="${c.id}" ${c.name===sel?'selected':''}>${c.code?esc(c.code)+'  ':''}${esc(c.name)}</option>`).join('');}
+function customerOptions(sel){return '<option value="">— pick customer —</option>'+data.customers.map(c=>`<option value="${c.id}" ${c.name===sel?'selected':''}>${c.code?esc(c.code)+'  ':''}${esc(c.name)}</option>`).join('');}
 function applyCustomer(f,id){const c=data.customers.find(x=>x.id===id);if(!c)return;f.cust=c.name;f.billAttn=c.attn||'';f.billAddr=c.address||'';}
 function applyContact(f,id){const c=data.contacts.find(x=>x.id===id);if(!c)return;f.cust=c.name;f.billAttn=c.attn||'';f.billAddr=c.address||'';}
 function qPickContact(id){if(id)applyCustomer(quoteForm,id);render();}
@@ -1272,7 +1279,7 @@ function render(){
       <div class="qform">
         <div class="qtabs">${[['bill','Billing & Shipping'],['gen','General Info'],['items','Items'],['pay','Payment Terms'],['add','Additional Info'],['ctrl','Controls']].map(([k,l])=>`<a onclick="document.getElementById('qs-${k}').scrollIntoView({behavior:'smooth',block:'start'})">${l}</a>`).join('')}</div>
         <div class="qsec" id="qs-bill"><div class="qsec-grid"><div class="h">Billing &amp; Shipping<p>Billing &amp; shipping parties for the transaction.</p></div>
-          <div><div class="qf"><label>Customer <span class="req">*</span></label>${data.contacts.length?`<select onchange="qPickContact(this.value)" style="margin-bottom:6px">${customerOptions()}</select>`:''}<input value="${esc(f.cust)}" oninput="qfSet('cust',this.value)" placeholder="Customer name"></div>
+          <div><div class="qf"><label>Customer <span class="req">*</span></label>${data.customers.length?`<select onchange="qPickContact(this.value)">${customerOptions(f.cust)}</select>`:'<div class="note">No customers yet. Add one in Setup, Customers first.</div>'}</div>
             <div class="qf"><label>Billing Attention</label><input value="${esc(f.billAttn)}" oninput="qfSet('billAttn',this.value)"></div>
             <div class="qf"><label>Billing Address</label><textarea oninput="qfSet('billAddr',this.value)">${esc(f.billAddr)}</textarea></div></div>
           <div><div class="qf"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" style="width:auto" ${f.showShip?'checked':''} onchange="qfSet('showShip',this.checked);render()"> Show Shipping Info</label></div>
@@ -1350,7 +1357,7 @@ function render(){
       <div class="qform">
         <div class="qtabs">${[['bill','Billing & Shipping'],['gen','General Info'],['items','Items'],['add','Additional Info'],['ctrl','Controls']].map(([k,l])=>`<a onclick="document.getElementById('is-${k}').scrollIntoView({behavior:'smooth',block:'start'})">${l}</a>`).join('')}</div>
         <div class="qsec" id="is-bill"><div class="qsec-grid"><div class="h">Billing &amp; Shipping<p>Billing &amp; shipping parties for the transaction.</p></div>
-          <div><div class="qf"><label>Customer <span class="req">*</span></label>${data.contacts.length?`<select onchange="iPickContact(this.value)" style="margin-bottom:6px">${customerOptions()}</select>`:''}<input value="${esc(f.cust)}" oninput="ivSet('cust',this.value)" placeholder="Customer name"></div>
+          <div><div class="qf"><label>Customer <span class="req">*</span></label>${data.customers.length?`<select onchange="iPickContact(this.value)">${customerOptions(f.cust)}</select>`:'<div class="note">No customers yet. Add one in Setup, Customers first.</div>'}</div>
             <div class="qf"><label>Billing Attention</label><input value="${esc(f.billAttn)}" oninput="ivSet('billAttn',this.value)"></div>
             <div class="qf"><label>Billing Address</label><textarea oninput="ivSet('billAddr',this.value)">${esc(f.billAddr)}</textarea></div></div>
           <div><div class="qf"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" style="width:auto" ${f.showShip?'checked':''} onchange="ivSet('showShip',this.checked);render()"> Show Shipping Info</label></div>
@@ -1420,7 +1427,7 @@ function render(){
         <div class="qtabs">${[['cred','Credit To'],['gen','General Info'],['items','Items'],['add','Additional Info'],['ctrl','Controls']].map(([k,l])=>`<a onclick="document.getElementById('cs-${k}').scrollIntoView({behavior:'smooth',block:'start'})">${l}</a>`).join('')}</div>
         <div class="qsec" id="cs-cred"><div class="qsec-grid"><div class="h">Credit To<p>Who and which invoice this credit is against.</p></div>
           <div><div class="qf"><label>Against Invoice</label><select onchange="cnSet('ref',this.value)"><option value="">— none —</option>${invOpts}</select></div>
-            <div class="qf"><label>Customer <span class="req">*</span></label>${data.contacts.length?`<select onchange="cPickContact(this.value)" style="margin-bottom:6px">${customerOptions()}</select>`:''}<input value="${esc(f.cust)}" oninput="cnSet('cust',this.value)" placeholder="Customer name"></div></div>
+            <div class="qf"><label>Customer <span class="req">*</span></label>${data.customers.length?`<select onchange="cPickContact(this.value)">${customerOptions(f.cust)}</select>`:'<div class="note">No customers yet. Add one in Setup, Customers first.</div>'}</div></div>
           <div><div class="qf"><label>Reason</label><input value="${esc(f.reason)}" oninput="cnSet('reason',this.value)" placeholder="e.g. Overcharge, returned goods"></div>
             <div class="qf"><label>Billing Address</label><textarea oninput="cnSet('billAddr',this.value)">${esc(f.billAddr)}</textarea></div></div></div></div>
         <div class="qsec" id="cs-gen"><div class="qsec-grid"><div class="h">General Info<p>Number, date and notes.</p></div>
@@ -1525,7 +1532,7 @@ function render(){
       <div class="qform">
         <div class="qtabs">${[['sup','Supplier'],['gen','General Info'],['items','Items'],['add','Additional Info'],['ctrl','Controls']].map(([k,l])=>`<a onclick="document.getElementById('bs-${k}').scrollIntoView({behavior:'smooth',block:'start'})">${l}</a>`).join('')}</div>
         <div class="qsec" id="bs-sup"><div class="qsec-grid"><div class="h">Supplier<p>Who you owe, and their invoice reference.</p></div>
-          <div><div class="qf"><label>Supplier <span class="req">*</span></label>${data.contacts.length?`<select onchange="bPickSupplier(this.value)" style="margin-bottom:6px">${contactOptions()}</select>`:''}<input value="${esc(f.supplier)}" oninput="bSet('supplier',this.value)" placeholder="Supplier name"></div>
+          <div><div class="qf"><label>Supplier <span class="req">*</span></label>${data.contacts.length?`<select onchange="bPickSupplier(this.value)">${contactOptions(f.supplier)}</select>`:'<div class="note">No suppliers yet. Add one in Setup, Suppliers first.</div>'}</div>
             <div class="qf"><label>Supplier Address</label><textarea oninput="bSet('supAddr',this.value)">${esc(f.supAddr)}</textarea></div></div>
           <div><div class="qf"><label>Supplier Invoice No.</label><input value="${esc(f.ref)}" oninput="bSet('ref',this.value)" placeholder="Their invoice / DO number"></div>
             <div class="qf"><label>Category</label><select onchange="bSet('category',this.value)">${cats.map(c=>`<option ${f.category===c?'selected':''}>${c}</option>`).join('')}</select></div></div></div></div>
@@ -1615,7 +1622,7 @@ function render(){
     el.innerHTML=`<div class="page-head"><div style="display:flex;align-items:center;gap:10px"><span style="cursor:pointer;font-size:20px" onclick="cancelDO()">←</span><h1>${f._edit?'Edit':'New'} Delivery Order</h1></div><span class="note">Goods delivered to a customer (signed on receipt)</span></div>
       <div class="qform">
         <div class="qsec"><div class="qsec-grid"><div class="h">Deliver To<p>Customer and delivery address.</p></div>
-          <div><div class="qf"><label>Customer <span class="req">*</span></label>${data.contacts.length?`<select onchange="doPickCust(this.value)" style="margin-bottom:6px">${customerOptions()}</select>`:''}<input value="${esc(f.cust)}" oninput="doSet('cust',this.value)" placeholder="Customer name"></div>
+          <div><div class="qf"><label>Customer <span class="req">*</span></label>${data.customers.length?`<select onchange="doPickCust(this.value)">${customerOptions(f.cust)}</select>`:'<div class="note">No customers yet. Add one in Setup, Customers first.</div>'}</div>
             <div class="qf"><label>Attn</label><input value="${esc(f.attn)}" oninput="doSet('attn',this.value)" placeholder="Contact person"></div></div>
           <div><div class="qf"><label>Delivery Address</label><textarea oninput="doSet('deliveryAddr',this.value)">${esc(f.deliveryAddr)}</textarea></div></div></div></div>
         <div class="qsec"><div class="qsec-grid"><div class="h">Details<p>DO number, date, transport.</p></div>
@@ -1956,8 +1963,8 @@ function render(){
     const list=filteredContacts();
     el.innerHTML=`<div class="page-head"><div><h1>Suppliers</h1><div class="desc">Saved suppliers — pick them when creating bills and vouchers.</div></div><button class="btn" onclick="newContact()">＋ New Supplier</button></div>
       <div class="filterbar"><div class="filtergrid" style="grid-template-columns:1fr"><div class="fld"><label>Search</label><input value="${esc(ctFilter)}" oninput="ctStore(this.value)" onkeydown="if(event.key==='Enter')ctApply()" placeholder="Name, phone or email"></div></div><div class="filteractions"><button class="iconbtn pri" onclick="ctApply()">🔍</button><button class="iconbtn" onclick="ctFilter='';render()">↺</button></div></div>
-      <div class="panel"><table><thead><tr><th>Code</th><th>Name</th><th>Attention</th><th>Phone</th><th>Email</th><th>Address</th><th style="text-align:right">Action</th></tr></thead><tbody>
-      ${list.map(c=>`<tr><td><b>${esc(c.code||'-')}</b></td><td>${esc(c.name)}</td><td>${esc(c.attn||'-')}</td><td>${esc(c.phone||'-')}</td><td>${esc(c.email||'-')}</td><td>${esc(c.address||'-')}</td>
+      <div class="panel"><table><thead><tr><th>Code</th><th>Name</th><th>NRIC</th><th>Attention</th><th>Phone</th><th>Email</th><th>Address</th><th style="text-align:right">Action</th></tr></thead><tbody>
+      ${list.map(c=>`<tr><td><b>${esc(c.code||'-')}</b></td><td>${esc(c.name)}</td><td>${esc(c.nric||'-')}${c.nricCopy?` <span title="NRIC copy on file" style="cursor:pointer" onclick="viewNricCopy('${c.id}')">📎</span>`:''}</td><td>${esc(c.attn||'-')}</td><td>${esc(c.phone||'-')}</td><td>${esc(c.email||'-')}</td><td>${esc(c.address||'-')}</td>
         <td style="text-align:right;white-space:nowrap"><button class="mini" onclick="editContact('${c.id}')">Edit</button><button class="mini" onclick="delContact('${c.id}')">Delete</button></td></tr>`).join('')}
       </tbody></table>${list.length?'':'<div class="empty">📭<br>No suppliers yet. Click “New Supplier”.</div>'}</div>`;
     return;}
